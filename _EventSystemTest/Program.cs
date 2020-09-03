@@ -16,14 +16,13 @@ namespace _EventSystemTest
                 Console.WriteLine($"{ev1} invoked with {@event} and {data}");
                 var ret = @event.Next(data);
                 Console.WriteLine($"Next returned {ret}");
-                return true;
             }, default);
             var h2 = EventManager.RegisterHandler(ev2, (@event, data) =>
             {
                 Console.WriteLine($"{ev2} invoked with {@event} and {data}");
                 var ret = @event.Next(data);
+                @event.NextAndTryTransform((object)data, a => a);
                 Console.WriteLine($"Next returned {ret}");
-                return true;
             }, default);
 
             EventManager.SendEventDynamic(ev1, ev2);

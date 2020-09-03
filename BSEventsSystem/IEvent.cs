@@ -5,7 +5,7 @@ namespace BSEventsSystem
     public interface IEvent
     {
         EventName EventName { get; }
-        dynamic Result { set; }
+        dynamic? Result { set; }
 
         EventResult Next(dynamic data);
     }
