@@ -5,7 +5,6 @@ using System.Text;
 
 namespace BSEventsSystem.Utility
 {
-
     public class Maybe
     {
         private Maybe() { }
@@ -19,14 +18,15 @@ namespace BSEventsSystem.Utility
     {
         private string DebuggerView => HasValue ? $"Some({Value})" : "None";
 
-        public T Value { get; }
+        private readonly T value;
+        public T Value => HasValue ? value : throw new InvalidOperationException();
         public bool HasValue { get; }
 
         public static Maybe<T> None => default;
 
         public Maybe(T value)
         {
-            Value = value;
+            this.value = value;
             HasValue = true;
         }
 
@@ -53,7 +53,7 @@ namespace BSEventsSystem.Utility
         public static implicit operator Maybe<T>(Maybe _) => None;
 
         public override string ToString()
-            => HasValue ? Value?.ToString() ?? "" : "";
+            => HasValue ? value?.ToString() ?? "" : "";
 
         public override bool Equals(object obj)
             => (obj is T t && Equals(t))
