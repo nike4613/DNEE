@@ -26,17 +26,17 @@ namespace BSEventsSystem
             throw new NotImplementedException();
         }
 
-        public static Maybe<dynamic> SendEventDynamic(in EventName @event, dynamic data)
+        public static EventResult SendEventDynamic(in EventName @event, dynamic data)
         {
             throw new NotImplementedException();
         }
 
-        public static Maybe<dynamic> SendEvent<T>(in EventName @event, in T data)
+        public static EventResult SendEvent<T>(in EventName @event, in T data)
         {
             throw new NotImplementedException();
         }
 
-        public static Maybe<R> SendEvent<T, R>(in EventName @event, in T data)
+        public static EventResult<R> SendEvent<T, R>(in EventName @event, in T data)
         {
             throw new NotImplementedException();
         }
