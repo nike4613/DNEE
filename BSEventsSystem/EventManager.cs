@@ -16,7 +16,12 @@ namespace BSEventsSystem
             throw new NotImplementedException();
         }
 
-        public static EventHandle RegisterHandler<T>(in EventName @event, EventHandler<T> handler, HandlerPriority priority)
+        public static EventHandle RegisterHandler<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static EventHandle RegisterHandler<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
             throw new NotImplementedException();
         }
