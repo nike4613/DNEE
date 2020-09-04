@@ -9,7 +9,7 @@ namespace BSEventsSystem.Internal
     {
         public static readonly HandlerSet Empty = new();
 
-        private readonly SortedSet<IHandler> handlers;
+        private readonly List<IHandler> handlers;
 
         public IReadOnlyCollection<IHandler> Handlers => handlers;
 
@@ -17,28 +17,35 @@ namespace BSEventsSystem.Internal
 
         private HandlerSet()
         {
-            handlers = new (HandlerComparer.Instance);
+            handlers = new ();
             Invoker = EmptyHandlerInvoker.Invoker;
         }
 
         private HandlerSet(HandlerSet copyFrom)
         {
-            handlers = new (copyFrom.Handlers, HandlerComparer.Instance);
+            handlers = new (copyFrom.Handlers);
             Invoker = copyFrom.Invoker;
         }
 
         public HandlerSet Copy() => new HandlerSet(this);
 
+        // TODO: improve these by implementing custom insertion logic to always insert/remove in the right place
         public void Add(IHandler handler)
         {
+            if (handlers.Contains(handler)) return;
+
             handlers.Add(handler);
+            handlers.Sort(HandlerComparer.Instance);
             Invoker = BuildChain(Handlers);
         }
 
         public void Remove(IHandler handler)
         {
-            handlers.Remove(handler);
-            Invoker = BuildChain(Handlers);
+            if (handlers.Remove(handler))
+            {
+                handlers.Sort(HandlerComparer.Instance);
+                Invoker = BuildChain(Handlers);
+            }
         }
 
         private static IHandlerInvoker BuildChain(IReadOnlyCollection<IHandler> handlers)

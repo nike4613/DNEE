@@ -70,12 +70,14 @@ namespace BSEventsSystem
         private static EventHandle RegisterInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
             // TODO: create actual IHandler for handler
+            throw new NotImplementedException();
             return AtomicAddHandler(@event, new EmptyIHandler());
         }
 
         private static EventHandle RegisterInternal<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
             // TODO: create actual IHandler for handler
+            throw new NotImplementedException();
             return AtomicAddHandler(@event, new EmptyIHandler());
         }
 
@@ -86,17 +88,20 @@ namespace BSEventsSystem
         #endregion
 
         #region Send
-        private static EventResult DynamicSendInternal(EventName @event, dynamic? data)
+        private static EventResult DynamicSendInternal(in EventName @event, dynamic? data)
         {
-            throw new NotImplementedException();
+            if (!EventHandlers.TryGetValue(@event, out var cell))
+                return default; // there are no handlers for the event
+
+            return cell.Handlers.Invoker.InvokeWithData((object?)data);
         }
 
-        private static EventResult TypedSendInternal<T>(EventName @event, in T data)
+        private static EventResult TypedSendInternal<T>(in EventName @event, in T data)
         {
             throw new NotImplementedException();
         }
         
-        private static EventResult<R> TypedSendInternal<T, R>(EventName @event, in T data)
+        private static EventResult<R> TypedSendInternal<T, R>(in EventName @event, in T data)
         {
             throw new NotImplementedException();
         }

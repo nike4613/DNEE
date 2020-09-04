@@ -22,11 +22,16 @@ namespace BSEventsSystem.Internal
         public bool DidCallNext { get; private set; } = false;
         public bool AlwaysInvokeNext { get; set; } = true;
 
+        private EventResult? nextResult = null;
         public EventResult Next(dynamic? data)
         {
+            if (nextResult != null)
+                return nextResult.Value;
+
             DidCallNext = true;
 
-            return invoker.InvokeContinuation((object?)data);
+            nextResult = invoker.InvokeContinuation((object?)data);
+            return nextResult.Value;
         }
 
         public EventResult GetEventResult()
