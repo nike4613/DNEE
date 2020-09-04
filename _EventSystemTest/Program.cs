@@ -13,14 +13,14 @@ namespace _EventSystemTest
 
             using var h1 = EventManager.RegisterHandler(ev1, (@event, data) =>
             {
-                Console.WriteLine($"{ev1} invoked with {@event} and {data}");
+                Console.WriteLine($"(h1) {ev1} invoked with {@event} and {data}");
                 var ret = @event.Next(data);
-                Console.WriteLine($"Next returned {ret}");
+                Console.WriteLine($"(h1) Next returned {ret}");
             }, (HandlerPriority)1);
 
             using var h2 = EventManager.RegisterHandler(ev2, (@event, data) =>
             {
-                Console.WriteLine($"{ev2} invoked with {@event} and {data}");
+                Console.WriteLine($"(h2) {ev2} invoked with {@event} and {data}");
                 //var ret = @event.Next(data);
                 @event.NextAndTryTransform((object?)data, a => a);
             }, (HandlerPriority)1);
