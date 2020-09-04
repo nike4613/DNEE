@@ -21,9 +21,8 @@ namespace _EventSystemTest
             using var h2 = EventManager.RegisterHandler(ev2, (@event, data) =>
             {
                 Console.WriteLine($"{ev2} invoked with {@event} and {data}");
-                var ret = @event.Next(data);
+                //var ret = @event.Next(data);
                 @event.NextAndTryTransform((object?)data, a => a);
-                Console.WriteLine($"Next returned {ret}");
             }, (HandlerPriority)1);
 
             using var h3 = EventManager.RegisterHandler(ev1, (@event, data) =>
@@ -44,7 +43,30 @@ namespace _EventSystemTest
                 @event.Result = ev2;
             }, (HandlerPriority)(-1));
 
+            using var h6 = EventManager.RegisterHandler<EventName>(ev1, (@event, data) =>
+            {
+                if (data.HasValue)
+                    Console.WriteLine($"(h6) Data found of type EventName: {data.Value}");
+                else
+                    Console.WriteLine($"(h6) Data of unknown type: {@event.DynamicData}");
+
+                @event.NextAndTryTransform(data, _ => _);
+
+            }, (HandlerPriority)2);
+
+            using var h7 = EventManager.RegisterHandler<EventName>(ev1, (@event, data) =>
+            {
+                if (data.HasValue)
+                    Console.WriteLine($"(h7) Data found of type EventName: {data.Value}");
+                else
+                    Console.WriteLine($"(h7) Data of unknown type: {@event.DynamicData}");
+
+                @event.NextAndTryTransform(data, _ => _);
+
+            }, (HandlerPriority)(-2));
+
             EventManager.SendEventDynamic(ev1, ev2);
+            Console.WriteLine();
             EventManager.SendEventDynamic(ev2, ev1);
 
             EventManager.UnregisterHandler(h1);

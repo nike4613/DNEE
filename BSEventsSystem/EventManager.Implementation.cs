@@ -70,8 +70,7 @@ namespace BSEventsSystem
         private static EventHandle RegisterInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
             // TODO: create actual IHandler for handler
-            throw new NotImplementedException();
-            return AtomicAddHandler(@event, new EmptyIHandler());
+            return AtomicAddHandler(@event, new TypedHandler<T>(@event, handler, priority));
         }
 
         private static EventHandle RegisterInternal<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
@@ -98,7 +97,14 @@ namespace BSEventsSystem
 
         private static EventResult TypedSendInternal<T>(in EventName @event, in T data)
         {
-            throw new NotImplementedException();
+            if (!EventHandlers.TryGetValue(@event, out var cell))
+                return default; // there are no handlers for the event
+
+            var invoker = cell.Handlers.Invoker;
+            if (invoker is IHandlerInvoker<T> typed)
+                return typed.InvokeWithData(data);
+
+            return invoker.InvokeWithData(data);
         }
         
         private static EventResult<R> TypedSendInternal<T, R>(in EventName @event, in T data)

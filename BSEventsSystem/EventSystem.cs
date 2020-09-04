@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BSEventsSystem.Utility;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,6 +10,21 @@ namespace BSEventsSystem
         public static bool NextAndTryTransform(this IEvent @event, dynamic? data, Func<dynamic?, dynamic?> transformer)
         {
             var result = @event.Next((object?)data);
+
+            if (result.HasValue)
+            {
+                @event.Result = transformer((object?)result.Result);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool NextAndTryTransform<T>(this IEvent<T> @event, Maybe<T> data, Func<dynamic?, dynamic?> transformer)
+        {
+            var result = data.HasValue
+                ? @event.Next(data.Value)
+                : @event.Next((object?)@event.DynamicData);
 
             if (result.HasValue)
             {

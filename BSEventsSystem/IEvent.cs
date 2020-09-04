@@ -14,7 +14,7 @@ namespace BSEventsSystem
 
     public interface IEvent<T> : IEvent
     {
-        dynamic DynamicData { get; }
+        dynamic? DynamicData { get; }
         EventResult Next(in T data);
     }
 
