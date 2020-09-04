@@ -7,6 +7,8 @@ namespace BSEventsSystem
         EventName EventName { get; }
         dynamic? Result { set; }
 
+        bool AlwaysInvokeNext { get; set; }
+
         EventResult Next(dynamic data);
     }
 

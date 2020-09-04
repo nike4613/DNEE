@@ -17,10 +17,12 @@ namespace BSEventsSystem.Internal
         private Maybe<dynamic?> result = Maybe.None;
         public dynamic? Result { set => result = Maybe.Some(value); }
         public bool DidCallNext { get; private set; } = false;
+        public bool AlwaysInvokeNext { get; set; } = true;
 
         public EventResult Next(dynamic data)
         {
             DidCallNext = true;
+
             throw new NotImplementedException();
         }
 
