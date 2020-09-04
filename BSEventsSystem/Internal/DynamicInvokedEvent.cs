@@ -15,7 +15,7 @@ namespace BSEventsSystem.Internal
         public EventName EventName { get; }
 
         private Maybe<dynamic?> result = Maybe.None;
-        public dynamic? Result { set => result = Maybe.Some(value); }
+        public dynamic? Result { set => result = Maybe.Some((object?)value); }
         public bool DidCallNext { get; private set; } = false;
         public bool AlwaysInvokeNext { get; set; } = true;
 
@@ -27,6 +27,6 @@ namespace BSEventsSystem.Internal
         }
 
         public EventResult GetEventResult()
-            => result.HasValue ? new EventResult(result.Value) : default;
+            => result.HasValue ? new EventResult((object?)result.Value) : default;
     }
 }

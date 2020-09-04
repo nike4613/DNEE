@@ -60,7 +60,7 @@ namespace BSEventsSystem
         }
 
         public static implicit operator EventResult(in EventResult<T> er)
-            => er.HasValue ? new EventResult(er.DynamicResult) : default;
+            => er.HasValue ? new EventResult((object?)er.DynamicResult) : default;
 
         public bool Equals(EventResult<T> other)
         {
