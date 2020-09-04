@@ -21,7 +21,7 @@ namespace _EventSystemTest
             {
                 Console.WriteLine($"{ev2} invoked with {@event} and {data}");
                 var ret = @event.Next(data);
-                @event.NextAndTryTransform((object)data, a => a);
+                @event.NextAndTryTransform((object?)data, a => a);
                 Console.WriteLine($"Next returned {ret}");
             }, default);
 

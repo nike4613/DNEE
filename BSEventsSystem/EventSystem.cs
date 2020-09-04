@@ -6,9 +6,9 @@ namespace BSEventsSystem
 {
     public static class EventSystem
     {
-        public static bool NextAndTryTransform(this IEvent @event, dynamic data, Func<dynamic?, dynamic?> transformer)
+        public static bool NextAndTryTransform(this IEvent @event, dynamic? data, Func<dynamic?, dynamic?> transformer)
         {
-            var result = @event.Next((object)data);
+            var result = @event.Next((object?)data);
 
             if (result.HasValue)
             {

@@ -7,9 +7,12 @@ namespace BSEventsSystem.Internal
 {
     internal sealed class DynamicInvokedEvent : IEvent, IEventWithResult
     {
-        public DynamicInvokedEvent(EventName name)
+        private readonly DynamicInvoker invoker;
+
+        public DynamicInvokedEvent(in EventName name, DynamicInvoker invoker)
         {
             EventName = name;
+            this.invoker = invoker;
         }
 
         public EventName EventName { get; }
@@ -19,11 +22,11 @@ namespace BSEventsSystem.Internal
         public bool DidCallNext { get; private set; } = false;
         public bool AlwaysInvokeNext { get; set; } = true;
 
-        public EventResult Next(dynamic data)
+        public EventResult Next(dynamic? data)
         {
             DidCallNext = true;
 
-            throw new NotImplementedException();
+            return invoker.InvokeContinuation((object?)data);
         }
 
         public EventResult GetEventResult()

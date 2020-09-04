@@ -9,7 +9,7 @@ namespace BSEventsSystem
 
         bool AlwaysInvokeNext { get; set; }
 
-        EventResult Next(dynamic data);
+        EventResult Next(dynamic? data);
     }
 
     public interface IEvent<T> : IEvent

@@ -7,7 +7,7 @@ namespace BSEventsSystem
 {
     public static partial class EventManager
     {
-        public delegate void DynamicEventHandler(IEvent @event, dynamic data);
+        public delegate void DynamicEventHandler(IEvent @event, dynamic? data);
         public delegate void NoReturnEventHandler<T>(IEvent<T> @event, in Maybe<T> data);
         public delegate void ReturnEventHandler<T, R>(IEvent<T, R> @event, in Maybe<T> data);
 

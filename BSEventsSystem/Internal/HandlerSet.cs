@@ -9,34 +9,50 @@ namespace BSEventsSystem.Internal
     {
         public static readonly HandlerSet Empty = new();
 
-        private readonly List<IHandler> handlers;
+        private readonly SortedSet<IHandler> handlers;
 
-        public IReadOnlyList<IHandler> Handlers => handlers;
+        public IReadOnlyCollection<IHandler> Handlers => handlers;
 
         public IHandlerInvoker Invoker { get; private set; }
 
         private HandlerSet()
         {
-            handlers = new();
+            handlers = new (HandlerComparer.Instance);
             Invoker = EmptyHandlerInvoker.Invoker;
         }
 
         private HandlerSet(HandlerSet copyFrom)
         {
-            handlers = copyFrom.Handlers.ToList();
+            handlers = new (copyFrom.Handlers, HandlerComparer.Instance);
             Invoker = copyFrom.Invoker;
         }
 
         public HandlerSet Copy() => new HandlerSet(this);
 
-        internal void Add(IHandler handler)
+        public void Add(IHandler handler)
         {
-            throw new NotImplementedException();
+            handlers.Add(handler);
+            Invoker = BuildChain(Handlers);
         }
 
-        internal void Remove(IHandler handler)
+        public void Remove(IHandler handler)
         {
-            throw new NotImplementedException();
+            handlers.Remove(handler);
+            Invoker = BuildChain(Handlers);
+        }
+
+        private static IHandlerInvoker BuildChain(IReadOnlyCollection<IHandler> handlers)
+        {
+            if (handlers.Count == 0)
+                return EmptyHandlerInvoker.Invoker;
+
+            IHandlerInvoker last = EmptyHandlerInvoker.Invoker;
+            foreach (var handler in handlers)
+            {
+                last = handler.CreateInvokerWithContinuation(last);
+            }
+
+            return last;
         }
 
         // TODO: implement

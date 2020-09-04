@@ -50,13 +50,21 @@ namespace BSEventsSystem
         private sealed class EmptyIHandler : IHandler
         {
             // TODO: remove and replace with actual implementations
+            public HandlerPriority Priority => throw new NotImplementedException();
+
+            public EventName Event => throw new NotImplementedException();
+
+            public IHandlerInvoker CreateInvokerWithContinuation(IHandlerInvoker continueWith)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         #region Register/Unregister
         private static EventHandle RegisterInternal(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
             // TODO: create actual IHandler for handler
-            return AtomicAddHandler(@event, new EmptyIHandler());
+            return AtomicAddHandler(@event, new DynamicHandler(@event, handler, priority));
         }
 
         private static EventHandle RegisterInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)

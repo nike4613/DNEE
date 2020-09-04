@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
-    <WarningsAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS8762</WarningsAsErrors>
+    <WarningsAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS8762;CS8767</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
