@@ -14,6 +14,8 @@ namespace BSEventsSystem
             Name = name;
         }
 
+        public bool IsValid => NameContext != null && Name != null;
+
         public static EventName InSelf(string name)
             => new EventName(Assembly.GetCallingAssembly(), name);
         public static EventName In<T>(string name)

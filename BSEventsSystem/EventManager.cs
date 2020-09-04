@@ -5,7 +5,7 @@ using System.Text;
 
 namespace BSEventsSystem
 {
-    public static class EventManager
+    public static partial class EventManager
     {
         public delegate void DynamicEventHandler(IEvent @event, dynamic data);
         public delegate void NoReturnEventHandler<T>(IEvent<T> @event, in Maybe<T> data);
@@ -13,37 +13,64 @@ namespace BSEventsSystem
 
         public static EventHandle RegisterHandler(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
-            throw new NotImplementedException();
+            if (!@event.IsValid)
+                throw new ArgumentException("Event name not valid", nameof(@event));
+            if (handler is null)
+                throw new ArgumentNullException(nameof(handler));
+
+            return RegisterInternal(@event, handler, priority);
         }
 
         public static EventHandle RegisterHandler<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            throw new NotImplementedException();
+            if (!@event.IsValid)
+                throw new ArgumentException("Event name not valid", nameof(@event));
+            if (handler is null)
+                throw new ArgumentNullException(nameof(handler));
+
+            return RegisterInternal(@event, handler, priority);
         }
 
         public static EventHandle RegisterHandler<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            throw new NotImplementedException();
+            if (!@event.IsValid)
+                throw new ArgumentException("Event name not valid", nameof(@event));
+            if (handler is null)
+                throw new ArgumentNullException(nameof(handler));
+
+            return RegisterInternal(@event, handler, priority);
         }
 
         public static void UnregisterHandler(in EventHandle handle)
         {
-            throw new NotImplementedException();
+            if (!handle.IsValid)
+                throw new ArgumentException("Handle not valid", nameof(handle));
+
+            UnregisterInternal(handle);
         }
 
-        public static EventResult SendEventDynamic(in EventName @event, dynamic data)
+        public static EventResult SendEventDynamic(in EventName @event, dynamic? data)
         {
-            throw new NotImplementedException();
+            if (!@event.IsValid)
+                throw new ArgumentException("Event name not valid", nameof(@event));
+
+            return DynamicSendInternal(@event, (object?)data);
         }
 
         public static EventResult SendEvent<T>(in EventName @event, in T data)
         {
-            throw new NotImplementedException();
+            if (!@event.IsValid)
+                throw new ArgumentException("Event name not valid", nameof(@event));
+
+            return TypedSendInternal(@event, data);
         }
 
         public static EventResult<R> SendEvent<T, R>(in EventName @event, in T data)
         {
-            throw new NotImplementedException();
+            if (!@event.IsValid)
+                throw new ArgumentException("Event name not valid", nameof(@event));
+
+            return TypedSendInternal<T, R>(@event, data);
         }
     }
 }
