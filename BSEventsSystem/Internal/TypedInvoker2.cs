@@ -5,13 +5,13 @@ using System.Text;
 
 namespace BSEventsSystem.Internal
 {
-    internal sealed class TypedInvoker1<T> : IHandlerInvoker<T>
+    internal sealed class TypedInvoker2<T, R> : IHandlerInvoker<T, R>
     {
         private readonly EventName @event;
-        private readonly TypedHandler1<T> handler;
+        private readonly TypedHandler2<T, R> handler;
         private readonly IHandlerInvoker continuation;
 
-        public TypedInvoker1(in EventName name, TypedHandler1<T> handler, IHandlerInvoker continueWith)
+        public TypedInvoker2(in EventName name, TypedHandler2<T, R> handler, IHandlerInvoker continueWith)
         {
             @event = name;
             this.handler = handler;
@@ -24,7 +24,7 @@ namespace BSEventsSystem.Internal
             if (obj is T tval)
                 return InvokeWithData(tval);
 
-            var @event = new TypedInvokedEvent1<T>(this.@event, this, obj);
+            var @event = new TypedInvokedEvent2<T, R>(this.@event, this, obj);
 
             // TODO: what do I want to do about exceptions?
             handler.HandlerFunc.Invoke(@event, Maybe.None);
@@ -37,9 +37,12 @@ namespace BSEventsSystem.Internal
             return @event.GetEventResult();
         }
 
-        public EventResult InvokeWithData(in T data)
+        EventResult IHandlerInvoker<T>.InvokeWithData(in T data)
+            => InvokeWithData(data);
+
+        public EventResult<R> InvokeWithData(in T data)
         {
-            var @event = new TypedInvokedEvent1<T>(this.@event, this, data);
+            var @event = new TypedInvokedEvent2<T, R>(this.@event, this, data);
 
             handler.HandlerFunc.Invoke(@event, Maybe.Some(data));
 
@@ -51,17 +54,23 @@ namespace BSEventsSystem.Internal
             return @event.GetEventResult();
         }
 
-        internal EventResult InvokeContinuationDynamic(dynamic? data)
+        internal EventResult<R> InvokeContinuationDynamic(dynamic? data)
         {
             return continuation.InvokeWithData((object?)data);
         }
 
-        internal EventResult InvokeContinuationTyped(in T data)
+        internal EventResult<R> InvokeContinuationTyped(in T data)
         {
             if (continuation is IHandlerInvoker<T> typed)
+            {
+                if (typed is IHandlerInvoker<T, R> typed2)
+                    return typed2.InvokeWithData(data);
                 return typed.InvokeWithData(data);
+            }
             else
+            {
                 return continuation.InvokeWithData(data);
+            }
         }
     }
 }

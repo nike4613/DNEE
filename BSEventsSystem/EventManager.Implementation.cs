@@ -47,37 +47,20 @@ namespace BSEventsSystem
             while (Interlocked.CompareExchange(ref cell.Handlers, handlers, original) != original);
         }
 
-        private sealed class EmptyIHandler : IHandler
-        {
-            // TODO: remove and replace with actual implementations
-            public HandlerPriority Priority => throw new NotImplementedException();
-
-            public EventName Event => throw new NotImplementedException();
-
-            public IHandlerInvoker CreateInvokerWithContinuation(IHandlerInvoker continueWith)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
         #region Register/Unregister
         private static EventHandle RegisterInternal(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
-            // TODO: create actual IHandler for handler
             return AtomicAddHandler(@event, new DynamicHandler(@event, handler, priority));
         }
 
         private static EventHandle RegisterInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            // TODO: create actual IHandler for handler
-            return AtomicAddHandler(@event, new TypedHandler<T>(@event, handler, priority));
+            return AtomicAddHandler(@event, new TypedHandler1<T>(@event, handler, priority));
         }
 
         private static EventHandle RegisterInternal<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            // TODO: create actual IHandler for handler
-            throw new NotImplementedException();
-            return AtomicAddHandler(@event, new EmptyIHandler());
+            return AtomicAddHandler(@event, new TypedHandler2<T, R>(@event, handler, priority));
         }
 
         private static void UnregisterInternal(in EventHandle handle)
@@ -109,7 +92,18 @@ namespace BSEventsSystem
         
         private static EventResult<R> TypedSendInternal<T, R>(in EventName @event, in T data)
         {
-            throw new NotImplementedException();
+            if (!EventHandlers.TryGetValue(@event, out var cell))
+                return default; // there are no handlers for the event
+
+            var invoker = cell.Handlers.Invoker;
+            if (invoker is IHandlerInvoker<T> typed)
+            {
+                if (typed is IHandlerInvoker<T, R> typed2)
+                    return typed2.InvokeWithData(data);
+                return typed.InvokeWithData(data);
+            }
+
+            return invoker.InvokeWithData(data);
         }
         #endregion
     }

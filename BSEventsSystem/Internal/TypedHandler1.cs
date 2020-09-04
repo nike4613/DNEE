@@ -4,13 +4,13 @@ using System.Text;
 
 namespace BSEventsSystem.Internal
 {
-    internal class TypedHandler<T> : IHandler
+    internal class TypedHandler1<T> : IHandler
     {
         public EventName Event { get; }
         public EventManager.NoReturnEventHandler<T> HandlerFunc { get; }
         public HandlerPriority Priority { get; }
 
-        public TypedHandler(in EventName name, EventManager.NoReturnEventHandler<T> func, HandlerPriority priority)
+        public TypedHandler1(in EventName name, EventManager.NoReturnEventHandler<T> func, HandlerPriority priority)
         {
             Event = name;
             HandlerFunc = func;
