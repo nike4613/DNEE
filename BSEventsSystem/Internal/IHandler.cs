@@ -1,4 +1,4 @@
-﻿namespace BSEventsSystem.Internal
+﻿namespace DNEE.Internal
 {
     internal interface IHandler
     {

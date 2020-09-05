@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BSEventsSystem.Internal {
+namespace DNEE.Internal {
     using System;
     
     

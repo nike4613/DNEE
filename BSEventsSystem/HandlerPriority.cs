@@ -1,4 +1,4 @@
-﻿namespace BSEventsSystem
+﻿namespace DNEE
 {
     public enum HandlerPriority
     {

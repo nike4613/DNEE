@@ -1,9 +1,9 @@
-﻿using BSEventsSystem.Utility;
+﻿using DNEE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BSEventsSystem.Internal
+namespace DNEE.Internal
 {
     internal sealed class TypedInvoker1<T> : IHandlerInvoker<T>
     {

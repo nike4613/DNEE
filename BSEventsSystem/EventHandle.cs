@@ -1,7 +1,7 @@
-﻿using BSEventsSystem.Internal;
+﻿using DNEE.Internal;
 using System;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public struct EventHandle : IDisposable
     {

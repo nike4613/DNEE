@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public struct EventResult : IEquatable<EventResult>
     {

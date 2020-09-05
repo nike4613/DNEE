@@ -1,6 +1,6 @@
-﻿using BSEventsSystem.Utility;
+﻿using DNEE.Utility;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public interface IEvent
     {

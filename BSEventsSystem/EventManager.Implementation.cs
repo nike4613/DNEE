@@ -1,11 +1,11 @@
-﻿using BSEventsSystem.Internal;
+﻿using DNEE.Internal;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public static partial class EventManager
     {

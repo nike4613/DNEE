@@ -1,10 +1,10 @@
-﻿using BSEventsSystem.Internal;
-using BSEventsSystem.Utility;
+﻿using DNEE.Internal;
+using DNEE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public static partial class EventManager
     {

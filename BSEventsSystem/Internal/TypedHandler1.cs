@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace BSEventsSystem.Internal
+namespace DNEE.Internal
 {
     internal class TypedHandler1<T> : IHandler
     {

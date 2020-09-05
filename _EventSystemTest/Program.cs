@@ -1,5 +1,5 @@
-﻿using BSEventsSystem;
-using BSEventsSystem.Utility;
+﻿using DNEE;
+using DNEE.Utility;
 using System;
 
 namespace _EventSystemTest

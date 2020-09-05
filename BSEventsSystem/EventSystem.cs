@@ -1,9 +1,9 @@
-﻿using BSEventsSystem.Utility;
+﻿using DNEE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public static class EventSystem
     {

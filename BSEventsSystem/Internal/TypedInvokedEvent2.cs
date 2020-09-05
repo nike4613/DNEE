@@ -1,9 +1,9 @@
-﻿using BSEventsSystem.Utility;
+﻿using DNEE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BSEventsSystem.Internal
+namespace DNEE.Internal
 {
     internal sealed class TypedInvokedEvent2<T, R> : IEvent<T, R>, IEventWithResult<R>
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace BSEventsSystem
+namespace DNEE
 {
     public struct EventName : IEquatable<EventName>
     {

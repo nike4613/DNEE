@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace BSEventsSystem.Utility
+namespace DNEE.Utility
 {
     public class Maybe
     {
