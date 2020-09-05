@@ -12,42 +12,42 @@ namespace DNEE
         public delegate void NoReturnEventHandler<T>(IEvent<T> @event, Maybe<T> data);
         public delegate void ReturnEventHandler<T, R>(IEvent<T, R> @event, Maybe<T> data);
 
-        public static EventHandle RegisterHandler(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
+        public static EventHandle SubscribeTo(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return RegisterInternal(@event, handler, priority);
+            return SubscribeInternal(@event, handler, priority);
         }
 
-        public static EventHandle RegisterHandler<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
+        public static EventHandle SubscribeTo<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return RegisterInternal(@event, handler, priority);
+            return SubscribeInternal(@event, handler, priority);
         }
 
-        public static EventHandle RegisterHandler<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
+        public static EventHandle SubscribeTo<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
             if (handler is null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return RegisterInternal(@event, handler, priority);
+            return SubscribeInternal(@event, handler, priority);
         }
 
-        public static void UnregisterHandler(in EventHandle handle)
+        public static void Unsubscribe(in EventHandle handle)
         {
             if (!handle.IsValid)
                 throw new ArgumentException(SR.EventHandleInvalid, nameof(handle));
 
-            UnregisterInternal(handle);
+            UnsubscribeInternal(handle);
         }
 
         public static EventResult SendEventDynamic(in EventName @event, dynamic? data)

@@ -18,7 +18,7 @@ namespace DNEE
 
         public void Dispose()
         {
-            EventManager.UnregisterHandler(this);
+            EventManager.Unsubscribe(this);
         }
     }
 }

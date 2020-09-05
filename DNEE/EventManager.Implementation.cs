@@ -48,22 +48,22 @@ namespace DNEE
         }
 
         #region Register/Unregister
-        private static EventHandle RegisterInternal(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
+        private static EventHandle SubscribeInternal(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
             return AtomicAddHandler(@event, new DynamicHandler(@event, handler, priority));
         }
 
-        private static EventHandle RegisterInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
+        private static EventHandle SubscribeInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
             return AtomicAddHandler(@event, new TypedHandler1<T>(@event, handler, priority));
         }
 
-        private static EventHandle RegisterInternal<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
+        private static EventHandle SubscribeInternal<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
             return AtomicAddHandler(@event, new TypedHandler2<T, R>(@event, handler, priority));
         }
 
-        private static void UnregisterInternal(in EventHandle handle)
+        private static void UnsubscribeInternal(in EventHandle handle)
         {
             AtomicRemoveHandler(handle);
         }
