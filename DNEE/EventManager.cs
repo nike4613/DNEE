@@ -57,7 +57,7 @@ namespace DNEE
 
             try
             {
-                return DynamicSendInternal(@event, (object?)data);
+                return DynamicSendInternal(@event, (object?)data).Unwrap();
             }
             catch (Exception e)
             {
@@ -72,7 +72,7 @@ namespace DNEE
 
             try
             {
-                return TypedSendInternal(@event, data);
+                return TypedSendInternal(@event, data).Unwrap();
             }
             catch (Exception e)
             {
@@ -87,7 +87,7 @@ namespace DNEE
 
             try
             {
-                return TypedSendInternal<T, R>(@event, data);
+                return TypedSendInternal<T, R>(@event, data).Unwrap();
             }
             catch (Exception e)
             {

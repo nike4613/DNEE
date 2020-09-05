@@ -70,27 +70,27 @@ namespace DNEE
         #endregion
 
         #region Send
-        private static EventResult DynamicSendInternal(in EventName @event, dynamic? data)
+        private static InternalEventResult DynamicSendInternal(in EventName @event, dynamic? data)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
 
-            return cell.Handlers.Invoker.InvokeWithData((object?)data).Unwrap();
+            return cell.Handlers.Invoker.InvokeWithData((object?)data);
         }
 
-        private static EventResult TypedSendInternal<T>(in EventName @event, in T data)
+        private static InternalEventResult TypedSendInternal<T>(in EventName @event, in T data)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
 
             var invoker = cell.Handlers.Invoker;
             if (invoker is IHandlerInvoker<T> typed)
-                return typed.InvokeWithData(data).Unwrap();
+                return typed.InvokeWithData(data);
 
-            return invoker.InvokeWithData(data).Unwrap();
+            return invoker.InvokeWithData(data);
         }
         
-        private static EventResult<R> TypedSendInternal<T, R>(in EventName @event, in T data)
+        private static InternalEventResult<R> TypedSendInternal<T, R>(in EventName @event, in T data)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
@@ -99,11 +99,11 @@ namespace DNEE
             if (invoker is IHandlerInvoker<T> typed)
             {
                 if (typed is IHandlerInvoker<T, R> typed2)
-                    return typed2.InvokeWithData(data).Unwrap();
-                return typed.InvokeWithData(data).Unwrap();
+                    return typed2.InvokeWithData(data);
+                return typed.InvokeWithData(data);
             }
 
-            return invoker.InvokeWithData(data).Unwrap();
+            return invoker.InvokeWithData(data);
         }
         #endregion
     }

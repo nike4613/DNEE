@@ -40,18 +40,8 @@ namespace DNEE.Internal
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                var res = InvokeContinuationDynamic((object?)data);
-                if (res.Exception != null)
-                {
-                    if (caught != null)
-                    {
-                        caught = ExceptionDispatchInfo.Capture(new AggregateException(caught.SourceException, res.Exception.SourceException).Flatten());
-                    }
-                    else
-                    {
-                        caught = res.Exception;
-                    }
-                }
+                var result = InvokeContinuationDynamic((object?)data);
+                caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
             return new InternalEventResult(@event.GetEventResult(), caught);
@@ -76,18 +66,8 @@ namespace DNEE.Internal
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                var res = InvokeContinuationTyped(data);
-                if (res.Exception != null)
-                {
-                    if (caught != null)
-                    {
-                        caught = ExceptionDispatchInfo.Capture(new AggregateException(caught.SourceException, res.Exception.SourceException).Flatten());
-                    }
-                    else
-                    {
-                        caught = res.Exception;
-                    }
-                }
+                var result = InvokeContinuationTyped(data);
+                caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
             return new InternalEventResult<R>(@event.GetEventResult(), caught);

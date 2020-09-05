@@ -36,17 +36,7 @@ namespace DNEE.Internal
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
                 var result = InvokeContinuation((object?)data);
-                if (result.Exception != null)
-                {
-                    if (caught != null)
-                    {
-                        caught = ExceptionDispatchInfo.Capture(new AggregateException(caught.SourceException, result.Exception.SourceException).Flatten());
-                    }
-                    else
-                    {
-                        caught = result.Exception;
-                    }
-                }
+                caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
             return new InternalEventResult(@event.GetEventResult(), caught);

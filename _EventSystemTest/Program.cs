@@ -61,15 +61,40 @@ namespace _EventSystemTest
                 else
                     Console.WriteLine($"(h7) Data of unknown type: {@event.DynamicData}");
 
-                @event.NextAndTryTransform(data, _ => _);
+                throw new Exception("h7");
 
-                throw new Exception();
+                //@event.NextAndTryTransform(data, _ => _);
 
             }, (HandlerPriority)(-2));
 
-            EventManager.SendEventDynamic(ev1, ev2);
-            Console.WriteLine();
-            EventManager.SendEventDynamic(ev2, ev1);
+            using var h8 = EventManager.SubscribeTo<EventName>(ev1, (@event, data) =>
+            {
+                if (data.HasValue)
+                    Console.WriteLine($"(h8) Data found of type EventName: {data.Value}");
+                else
+                    Console.WriteLine($"(h8) Data of unknown type: {@event.DynamicData}");
+
+                @event.NextAndTryTransform(data, _ => _);
+
+                throw new Exception("h8");
+
+            }, (HandlerPriority)(-4));
+
+            using var h9 = EventManager.SubscribeTo<EventName>(ev1, (@event, data) =>
+            {
+                @event.NextAndTryTransform(data, _ => _);
+            }, (HandlerPriority)(-3));
+
+            try
+            {
+                EventManager.SendEventDynamic(ev1, ev2);
+                Console.WriteLine();
+                EventManager.SendEventDynamic(ev2, ev1);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
 
             EventManager.Unsubscribe(h1);
             EventManager.Unsubscribe(h2);
