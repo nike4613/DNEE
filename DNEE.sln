@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30420.98
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSEventsSystem", "BSEventsSystem\BSEventsSystem.csproj", "{FEA85863-84C0-4AAB-9B9E-4FA49D2496FF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DNEE", "DNEE\DNEE.csproj", "{FEA85863-84C0-4AAB-9B9E-4FA49D2496FF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_EventSystemTest", "_EventSystemTest\_EventSystemTest.csproj", "{E33E2074-3AB4-47E6-9B35-BF13180FE4FE}"
 EndProject

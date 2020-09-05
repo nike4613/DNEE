@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BSEventsSystem\BSEventsSystem.csproj" />
+    <ProjectReference Include="..\DNEE\DNEE.csproj" />
   </ItemGroup>
 
 </Project>
