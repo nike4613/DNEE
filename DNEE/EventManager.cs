@@ -55,7 +55,14 @@ namespace DNEE
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
 
-            return DynamicSendInternal(@event, (object?)data);
+            try
+            {
+                return DynamicSendInternal(@event, (object?)data);
+            }
+            catch (Exception e)
+            {
+                throw new HandlerInvocationException(string.Format(SR.ErrorInvokingEvents, @event), e);
+            }
         }
 
         public static EventResult SendEvent<T>(in EventName @event, in T data)
@@ -63,7 +70,14 @@ namespace DNEE
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
 
-            return TypedSendInternal(@event, data);
+            try
+            {
+                return TypedSendInternal(@event, data);
+            }
+            catch (Exception e)
+            {
+                throw new HandlerInvocationException(string.Format(SR.ErrorInvokingEvents, @event), e);
+            }
         }
 
         public static EventResult<R> SendEvent<T, R>(in EventName @event, in T data)
@@ -71,7 +85,14 @@ namespace DNEE
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
 
-            return TypedSendInternal<T, R>(@event, data);
+            try
+            {
+                return TypedSendInternal<T, R>(@event, data);
+            }
+            catch (Exception e)
+            {
+                throw new HandlerInvocationException(string.Format(SR.ErrorInvokingEvents, @event), e);
+            }
         }
     }
 }

@@ -61,6 +61,15 @@ namespace DNEE.Internal {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There was an error while invoking the handlers for event {0}.
+        /// </summary>
+        internal static string ErrorInvokingEvents {
+            get {
+                return ResourceManager.GetString("ErrorInvokingEvents", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Event handle is not valid!.
         /// </summary>
         internal static string EventHandleInvalid {

@@ -63,6 +63,8 @@ namespace _EventSystemTest
 
                 @event.NextAndTryTransform(data, _ => _);
 
+                throw new Exception();
+
             }, (HandlerPriority)(-2));
 
             EventManager.SendEventDynamic(ev1, ev2);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Text;
 
 namespace DNEE.Internal
@@ -17,22 +18,41 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
-        public EventResult InvokeWithData(dynamic? data)
+        public InternalEventResult InvokeWithData(dynamic? data)
         {
             var @event = new DynamicInvokedEvent(this.@event, this);
 
-            // TODO: what do I want to do about exceptions?
-            handler.HandlerFunc.Invoke(@event, (object?)data);
+            ExceptionDispatchInfo? caught = null;
+            try
+            {
+                // TODO: what do I want to do about exceptions?
+                handler.HandlerFunc.Invoke(@event, (object?)data);
+            }
+            catch (Exception e)
+            {
+                caught = ExceptionDispatchInfo.Capture(e);
+            }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                InvokeContinuation((object?)data);
+                var result = InvokeContinuation((object?)data);
+                if (result.Exception != null)
+                {
+                    if (caught != null)
+                    {
+                        caught = ExceptionDispatchInfo.Capture(new AggregateException(caught.SourceException, result.Exception.SourceException).Flatten());
+                    }
+                    else
+                    {
+                        caught = result.Exception;
+                    }
+                }
             }
 
-            return @event.GetEventResult();
+            return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        internal EventResult InvokeContinuation(dynamic? data)
+        internal InternalEventResult InvokeContinuation(dynamic? data)
         {
             return continuation.InvokeWithData((object?)data);
         }

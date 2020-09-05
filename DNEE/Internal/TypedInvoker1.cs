@@ -1,6 +1,7 @@
 ﻿using DNEE.Utility;
 using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Text;
 
 namespace DNEE.Internal
@@ -18,7 +19,7 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
-        public EventResult InvokeWithData(dynamic? data)
+        public InternalEventResult InvokeWithData(dynamic? data)
         {
             var obj = (object?)data;
             if (obj is T tval)
@@ -26,37 +27,76 @@ namespace DNEE.Internal
 
             var @event = new TypedInvokedEvent1<T>(this.@event, this, obj);
 
-            // TODO: what do I want to do about exceptions?
-            handler.HandlerFunc.Invoke(@event, Maybe.None);
+            ExceptionDispatchInfo? caught = null;
+            try
+            {
+                // TODO: what do I want to do about exceptions?
+                handler.HandlerFunc.Invoke(@event, Maybe.None);
+            }
+            catch (Exception e)
+            {
+                caught = ExceptionDispatchInfo.Capture(e);
+            }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                InvokeContinuationDynamic((object?)data);
+                var result = InvokeContinuationDynamic((object?)data);
+                if (result.Exception != null)
+                {
+                    if (caught != null)
+                    {
+                        caught = ExceptionDispatchInfo.Capture(new AggregateException(caught.SourceException, result.Exception.SourceException).Flatten());
+                    }
+                    else
+                    {
+                        caught = result.Exception;
+                    }
+                }
             }
 
-            return @event.GetEventResult();
+            return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        public EventResult InvokeWithData(in T data)
+        public InternalEventResult InvokeWithData(in T data)
         {
             var @event = new TypedInvokedEvent1<T>(this.@event, this, data);
 
-            handler.HandlerFunc.Invoke(@event, Maybe.Some(data));
+            ExceptionDispatchInfo? caught = null;
+            try
+            {
+                // TODO: what do I want to do about exceptions?
+                handler.HandlerFunc.Invoke(@event, Maybe.Some(data));
+            }
+            catch (Exception e)
+            {
+                caught = ExceptionDispatchInfo.Capture(e);
+            }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                InvokeContinuationTyped(data);
+                var result = InvokeContinuationTyped(data);
+                if (result.Exception != null)
+                {
+                    if (caught != null)
+                    {
+                        caught = ExceptionDispatchInfo.Capture(new AggregateException(caught.SourceException, result.Exception.SourceException).Flatten());
+                    }
+                    else
+                    {
+                        caught = result.Exception;
+                    }
+                }
             }
 
-            return @event.GetEventResult();
+            return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        internal EventResult InvokeContinuationDynamic(dynamic? data)
+        internal InternalEventResult InvokeContinuationDynamic(dynamic? data)
         {
             return continuation.InvokeWithData((object?)data);
         }
 
-        internal EventResult InvokeContinuationTyped(in T data)
+        internal InternalEventResult InvokeContinuationTyped(in T data)
         {
             if (continuation is IHandlerInvoker<T> typed)
                 return typed.InvokeWithData(data);

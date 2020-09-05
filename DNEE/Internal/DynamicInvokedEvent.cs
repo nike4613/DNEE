@@ -29,7 +29,7 @@ namespace DNEE.Internal
 
             DidCallNext = true;
 
-            return invoker.InvokeContinuation((object?)data);
+            return invoker.InvokeContinuation((object?)data).Unwrap();
         }
 
         public EventResult GetEventResult()

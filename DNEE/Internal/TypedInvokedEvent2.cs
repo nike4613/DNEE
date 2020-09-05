@@ -50,7 +50,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationDynamic((object?)data);
+            return invoker.InvokeContinuationDynamic((object?)data).Unwrap();
         }
 
         EventResult IEvent<T>.Next(in T data)
@@ -62,7 +62,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationTyped(data);
+            return invoker.InvokeContinuationTyped(data).Unwrap();
         }
 
         public EventResult<R> GetEventResult()
