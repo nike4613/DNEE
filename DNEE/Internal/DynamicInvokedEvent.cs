@@ -1,4 +1,5 @@
-﻿using DNEE.Utility;
+﻿using DNEE.Internal.Resources;
+using DNEE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,4 +1,5 @@
 ﻿using DNEE.Internal;
+using DNEE.Internal.Resources;
 using System;
 using System.Reflection;
 
