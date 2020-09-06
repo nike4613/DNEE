@@ -50,12 +50,6 @@ namespace DNEE.Internal
                 }
 
                 return node != null;
-
-                /*
-                var next = node.Next;
-                if (next == null) return false;
-                node = next;
-                return true;*/
             }
 
             public void Reset()
@@ -122,12 +116,6 @@ namespace DNEE.Internal
                 }
 
                 return node != null;
-
-                /*
-                var next = node.Next;
-                if (next == null) return false;
-                node = next;
-                return true;*/
             }
 
             public void Reset()

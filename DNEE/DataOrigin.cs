@@ -42,7 +42,7 @@ namespace DNEE
             set
             {
                 if (source != null)
-                    throw new InvalidOperationException("Source can be set only once on an origin");
+                    throw new InvalidOperationException(SR.Origin_SourceSetOnceOnly);
                 source = value;
             }
         }

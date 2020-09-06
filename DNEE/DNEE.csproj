@@ -6,6 +6,18 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8618;CS8625;CS8762;CS8767</WarningsAsErrors>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Version>1.0.0-rc1</Version>
+    <Authors>DaNike</Authors>
+    <Product>DaNike's Extensible Events</Product>
+    <Description>A powerful, extensible, composition-based event framework.</Description>
+    <Copyright>2020 Anairkoen Schno</Copyright>
+    <PackageProjectUrl>https://github.com/nike4613/DNEE</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nike4613/DNEE</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

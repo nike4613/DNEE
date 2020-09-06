@@ -133,6 +133,15 @@ namespace DNEE.Internal.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Source can only be set once!.
+        /// </summary>
+        internal static string Origin_SourceSetOnceOnly {
+            get {
+                return ResourceManager.GetString("Origin_SourceSetOnceOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {3}({1}::{0} for {2}).
         /// </summary>
         internal static string Origin_StringFormat {
