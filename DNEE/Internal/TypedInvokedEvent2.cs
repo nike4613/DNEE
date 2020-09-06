@@ -47,6 +47,7 @@ namespace DNEE.Internal
             }
         }
 
+        // TODO: make this less messy somehow
         public DataOrigin DataOrigin { get; }
 
         private readonly DataHistoryEnumerable<T> typedDataHistory;

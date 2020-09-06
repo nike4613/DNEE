@@ -20,6 +20,8 @@ namespace DNEE.Internal
             typedDataHistory = new DataHistoryEnumerable<T>(this);
         }
 
+        // TODO: make this less messy somehow
+
         public EventName EventName { get; }
 
         private Maybe<dynamic?> result = Maybe.None;
