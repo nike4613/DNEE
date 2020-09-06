@@ -5,17 +5,19 @@ using System.Text;
 
 namespace DNEE.Internal
 {
-    internal sealed class TypedInvokedEvent2<T, R> : IEvent<T, R>, IEventWithResult<R>
+    internal sealed class TypedInvokedEvent2<T, R> : IEvent<T, R>, IEventWithResult<R>, IDataHistoryNode<T>
     {
 
         private readonly TypedInvoker2<T, R> invoker;
 
-        public TypedInvokedEvent2(DataOrigin dataOrigin, in EventName name, TypedInvoker2<T, R> invoker, dynamic? data)
+        public TypedInvokedEvent2(DataOrigin dataOrigin, in EventName name, TypedInvoker2<T, R> invoker, dynamic? data, IDataHistoryNode? last)
         {
             DataOrigin = dataOrigin;
             EventName = name;
             this.invoker = invoker;
             DynamicData = data;
+            nextNode = last;
+            typedDataHistory = new DataHistoryEnumerable<T>(this);
         }
 
         public EventName EventName { get; }
@@ -47,13 +49,29 @@ namespace DNEE.Internal
 
         public DataOrigin DataOrigin { get; }
 
+        private readonly DataHistoryEnumerable<T> typedDataHistory;
+        public IEnumerable<DataWithOrigin<T>> DataHistory => typedDataHistory;
+
+        IEnumerable<DataWithOrigin> IEvent.DataHistory => typedDataHistory;
+
+        public bool IsTyped => DynamicData is T;
+
+        public T Data => (T)(object?)DynamicData!;
+
+        public DataOrigin Origin => DataOrigin;
+
+        dynamic? IDataHistoryNode.Data => DynamicData;
+
+        private readonly IDataHistoryNode? nextNode;
+        IDataHistoryNode? IDataHistoryNode.Next => nextNode;
+
         public EventResult Next(dynamic? data)
         {
             if (DidCallNext)
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationDynamic((object?)data, invoker.Origin).Unwrap();
+            return invoker.InvokeContinuationDynamic((object?)data, invoker.Origin, this).Unwrap();
         }
 
         EventResult IEvent<T>.Next(in T data)
@@ -65,7 +83,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationTyped(data, invoker.Origin).Unwrap();
+            return invoker.InvokeContinuationTyped(data, invoker.Origin, this).Unwrap();
         }
 
         public EventResult<R> GetEventResult()

@@ -10,7 +10,7 @@ namespace DNEE.Internal
 
         private EmptyHandlerInvoker() { }
 
-        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin origin)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin origin, IDataHistoryNode? node)
             => default;
     }
 }

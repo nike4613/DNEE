@@ -76,7 +76,7 @@ namespace DNEE.Internal
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
 
-            return cell.Handlers.Invoker.InvokeWithData((object?)data, source.Origin);
+            return cell.Handlers.Invoker.InvokeWithData((object?)data, source.Origin, null);
         }
 
         internal static InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data)
@@ -86,9 +86,9 @@ namespace DNEE.Internal
 
             var invoker = cell.Handlers.Invoker;
             if (invoker is IHandlerInvoker<T> typed)
-                return typed.InvokeWithData(data, source.Origin);
+                return typed.InvokeWithData(data, source.Origin, null);
 
-            return invoker.InvokeWithData(data, source.Origin);
+            return invoker.InvokeWithData(data, source.Origin, null);
         }
 
         internal static InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data)
@@ -100,11 +100,11 @@ namespace DNEE.Internal
             if (invoker is IHandlerInvoker<T> typed)
             {
                 if (typed is IHandlerInvoker<T, R> typed2)
-                    return typed2.InvokeWithData(data, source.Origin);
-                return typed.InvokeWithData(data, source.Origin);
+                    return typed2.InvokeWithData(data, source.Origin, null);
+                return typed.InvokeWithData(data, source.Origin, null);
             }
 
-            return invoker.InvokeWithData(data, source.Origin);
+            return invoker.InvokeWithData(data, source.Origin, null);
         }
         #endregion
     }

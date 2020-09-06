@@ -20,13 +20,13 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
-        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var obj = (object?)data;
             if (obj is T tval)
-                return InvokeWithData(tval, dataOrigin);
+                return InvokeWithData(tval, dataOrigin, histNode);
 
-            var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, obj);
+            var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, obj, histNode);
 
             ExceptionDispatchInfo? caught = null;
             try
@@ -40,16 +40,16 @@ namespace DNEE.Internal
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                var result = InvokeContinuationDynamic((object?)data, dataOrigin);
+                var result = InvokeContinuationDynamic((object?)data, dataOrigin, histNode);
                 caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        public InternalEventResult InvokeWithData(in T data, DataOrigin dataOrigin)
+        public InternalEventResult InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
-            var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, data);
+            var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, data, histNode);
 
             ExceptionDispatchInfo? caught = null;
             try
@@ -63,7 +63,7 @@ namespace DNEE.Internal
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                var result = InvokeContinuationTyped(data, dataOrigin);
+                var result = InvokeContinuationTyped(data, dataOrigin, histNode);
                 caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
@@ -71,18 +71,18 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult InvokeContinuationDynamic(dynamic? data, DataOrigin origin)
+        internal InternalEventResult InvokeContinuationDynamic(dynamic? data, DataOrigin origin, IDataHistoryNode? histNode)
         {
-            return continuation.InvokeWithData((object?)data, origin);
+            return continuation.InvokeWithData((object?)data, origin, histNode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult InvokeContinuationTyped(in T data, DataOrigin origin)
+        internal InternalEventResult InvokeContinuationTyped(in T data, DataOrigin origin, IDataHistoryNode? histNode)
         {
             if (continuation is IHandlerInvoker<T> typed)
-                return typed.InvokeWithData(data, origin);
+                return typed.InvokeWithData(data, origin, histNode);
             else
-                return continuation.InvokeWithData(data, origin);
+                return continuation.InvokeWithData(data, origin, histNode);
         }
     }
 }

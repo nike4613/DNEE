@@ -14,8 +14,7 @@ namespace DNEE.Internal
 
     internal interface IDataHistoryNode<T> : IDataHistoryNode
     { 
+        bool IsTyped { get; }
         new T Data { get; }
-
-        new IDataHistoryNode<T>? Next { get; }
     }
 }

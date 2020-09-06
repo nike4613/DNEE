@@ -20,14 +20,15 @@ namespace DNEE
     public interface IEvent<T> : IEvent
     {
         dynamic? DynamicData { get; }
+
+        new IEnumerable<DataWithOrigin<T>> DataHistory { get; }
+
         EventResult Next(in T data);
     }
 
     public interface IEvent<T, R> : IEvent<T>
     {
         new R Result { set; }
-
-        new IEnumerable<DataWithOrigin<T>> DataHistory { get; }
 
         new EventResult<R> Next(in T data);
     }

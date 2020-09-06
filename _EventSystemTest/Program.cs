@@ -78,6 +78,11 @@ namespace _EventSystemTest
 
                 @event.NextAndTryTransform(data, _ => _);
 
+                foreach (var (origin, ldata) in @event.DataHistory)
+                {
+                    Console.WriteLine($"({origin}) {ldata}");
+                }
+
                 throw new Exception("h8");
 
             }, (HandlerPriority)(-4));
