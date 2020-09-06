@@ -19,9 +19,9 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
-        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode lastNode)
         {
-            var @event = new DynamicInvokedEvent(dataOrigin, handler.Event, this);
+            var @event = new DynamicInvokedEvent(dataOrigin, handler.Event, this, data, lastNode);
 
             ExceptionDispatchInfo? caught = null;
             try
@@ -35,7 +35,7 @@ namespace DNEE.Internal
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                var result = InvokeContinuation((object?)data, dataOrigin);
+                var result = InvokeContinuation((object?)data, dataOrigin, lastNode);
                 caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
@@ -43,9 +43,9 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult InvokeContinuation(dynamic? data, DataOrigin origin)
+        internal InternalEventResult InvokeContinuation(dynamic? data, DataOrigin origin, IDataHistoryNode lastNode)
         {
-            return continuation.InvokeWithData((object?)data, origin);
+            return continuation.InvokeWithData((object?)data, origin, lastNode);
         }
     }
 }

@@ -62,7 +62,5 @@ namespace DNEE.Internal
             return last;
         }
 
-        // TODO: implement
-
     }
 }

@@ -1,4 +1,6 @@
 ﻿using DNEE.Utility;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace DNEE
 {
@@ -9,6 +11,8 @@ namespace DNEE
         dynamic? Result { set; }
 
         bool AlwaysInvokeNext { get; set; }
+
+        IEnumerable<DataWithOrigin> DataHistory { get; }
 
         EventResult Next(dynamic? data);
     }
@@ -22,6 +26,8 @@ namespace DNEE
     public interface IEvent<T, R> : IEvent<T>
     {
         new R Result { set; }
+
+        new IEnumerable<DataWithOrigin<T>> DataHistory { get; }
 
         new EventResult<R> Next(in T data);
     }
