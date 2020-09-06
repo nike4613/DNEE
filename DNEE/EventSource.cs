@@ -11,24 +11,29 @@ namespace DNEE
     public sealed class EventSource
     {
         public DataOrigin Origin { get; }
+        private readonly object originAssocObj;
 
         public EventSource(string name)
+            : this(new DataOrigin(name, null, 1))
         {
-            Origin = new DataOrigin(name, null, 1) { Source = this };
         }
 
         public EventSource(string name, MemberInfo forMember)
+            : this(new DataOrigin(name, forMember, 1))
         {
-            Origin = new DataOrigin(name, forMember, 1) { Source = this };
         }
 
         public EventSource(DataOrigin origin)
         {
-            if (origin.Source != null)
+            if (origin.IsValid)
                 throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
 
-            origin.Source = this;
+            originAssocObj = new();
             Origin = origin;
+            origin.SetSource(originAssocObj);
+
+            if (!origin.IsValid)
+                throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
         }
 
         public EventName Event(string name)

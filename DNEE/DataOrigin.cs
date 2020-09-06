@@ -4,11 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DNEE
 {
-    [DebuggerDisplay("\\{{GetType().Name,nq} {Assembly.GetName().Name,nq}::{Name} TrustByDefault = {ShouldTrustByDefault}\\}")]
+    [DebuggerDisplay("\\{{GetType().Name,nq} {Assembly.GetName().Name,nq}::{Name} AssumeTrusted = {ShouldAssumeTrusted}\\}")]
     public class DataOrigin
     {
         public string Name { get; }
@@ -35,19 +36,19 @@ namespace DNEE
             Assembly = constructing.DeclaringType.Assembly;
         }
 
-        private EventSource? source;
-        internal EventSource Source
+        private static readonly ConditionalWeakTable<DataOrigin, object> sourceTable = new();
+        private object? source;
+        internal object Source => source ?? throw new InvalidOperationException();
+
+        internal void SetSource(object source)
         {
-            get => source ?? throw new InvalidOperationException();
-            set
-            {
-                if (source != null)
-                    throw new InvalidOperationException(SR.Origin_SourceSetOnceOnly);
-                source = value;
-            }
+            if (this.source != null)
+                throw new InvalidOperationException(SR.Origin_SourceSetOnceOnly);
+            sourceTable.Add(this, source);
+            this.source = source;
         }
 
-        public bool IsValid => source != null;
+        public bool IsValid => source != null && sourceTable.TryGetValue(this, out var val) && ReferenceEquals(source, val);
 
         public override string ToString()
             => string.Format(SR.Origin_StringFormat, Name, Assembly.GetName().Name, Member.Name, GetType().Name);

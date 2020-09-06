@@ -148,4 +148,7 @@
     <value>{3}({1}::{0} for {2})</value>
     <comment>{0} is Name, {1} is Assembly.FullName, {2} is Member.Name, {3} is GetType().Name</comment>
   </data>
+  <data name="Origin_TryGetSourceFromOrigin" xml:space="preserve">
+    <value>Attempting to get the EventSource associated with an origin!</value>
+  </data>
 </root>

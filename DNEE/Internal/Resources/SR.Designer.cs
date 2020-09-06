@@ -149,5 +149,14 @@ namespace DNEE.Internal.Resources {
                 return ResourceManager.GetString("Origin_StringFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempting to get the EventSource associated with an origin!.
+        /// </summary>
+        internal static string Origin_TryGetSourceFromOrigin {
+            get {
+                return ResourceManager.GetString("Origin_TryGetSourceFromOrigin", resourceCulture);
+            }
+        }
     }
 }
