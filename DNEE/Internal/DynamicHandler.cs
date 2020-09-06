@@ -7,10 +7,10 @@ namespace DNEE.Internal
     internal class DynamicHandler : IHandler
     {
         public EventName Event { get; }
-        public EventManager.DynamicEventHandler HandlerFunc { get; }
+        public DynamicEventHandler HandlerFunc { get; }
         public HandlerPriority Priority { get; }
 
-        public DynamicHandler(in EventName name, EventManager.DynamicEventHandler func, HandlerPriority priority)
+        public DynamicHandler(in EventName name, DynamicEventHandler func, HandlerPriority priority)
         {
             Event = name;
             HandlerFunc = func;

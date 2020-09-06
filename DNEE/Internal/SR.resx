@@ -122,14 +122,27 @@
   </data>
   <data name="EventHandleInvalid" xml:space="preserve">
     <value>Event handle is not valid!</value>
-    <comment>The error message for when an EventHandle passed to EventManager is invalid.</comment>
   </data>
   <data name="EventNameInvalid" xml:space="preserve">
     <value>Event name is not valid!</value>
-    <comment>The error message for when an EventName that is passed to EventManager is invalid.</comment>
+  </data>
+  <data name="EventName_OriginNotValid" xml:space="preserve">
+    <value>The provided origin is not valid!</value>
+  </data>
+  <data name="EventSource_HandleNotFromThisSource" xml:space="preserve">
+    <value>The provided EventHandle was not created by this EventSource.</value>
+  </data>
+  <data name="EventSource_OriginAlreadyAttached" xml:space="preserve">
+    <value>The provided origin is already attached to an event source!</value>
   </data>
   <data name="Handler_NextInvokedOnceOnly" xml:space="preserve">
     <value>Next can only be invoked once!</value>
-    <comment>The error message for when IEvent.Next is invoked multiple times.</comment>
+  </data>
+  <data name="Origin_CouldNotGetConstructingMember" xml:space="preserve">
+    <value>Could not get the constructing member for DataOrigin</value>
+  </data>
+  <data name="Origin_StringFormat" xml:space="preserve">
+    <value>{3}({1}::{0} for {2})</value>
+    <comment>{0} is Name, {1} is Assembly.FullName, {2} is Member.Name, {3} is GetType().Name</comment>
   </data>
 </root>

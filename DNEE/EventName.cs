@@ -1,39 +1,39 @@
-﻿using System;
+﻿using DNEE.Internal;
+using System;
 using System.Reflection;
 
 namespace DNEE
 {
     public struct EventName : IEquatable<EventName>
     {
-        public Assembly NameContext { get; }
+        public DataOrigin Origin { get; }
         public string Name { get; }
 
-        public EventName(Assembly assembly, string name)
+        public EventName(DataOrigin origin, string name)
         {
-            NameContext = assembly;
+            if (!origin.IsValid)
+                throw new ArgumentException(SR.EventName_OriginNotValid, nameof(origin));
+            if (name is null)
+                throw new ArgumentNullException(nameof(name));
+            Origin = origin;
             Name = name;
         }
 
-        public bool IsValid => NameContext != null && Name != null;
-
-        public static EventName InSelf(string name)
-            => new EventName(Assembly.GetCallingAssembly(), name);
-        public static EventName In<T>(string name)
-            => new EventName(typeof(T).Assembly, name);
+        public bool IsValid => Origin != null && Name != null;
 
         public bool Equals(EventName other)
-            => NameContext == other.NameContext && Name == other.Name;
+            => Origin == other.Origin && Name == other.Name;
 
         public override bool Equals(object obj)
             => obj is EventName name && Equals(name);
 
         public override int GetHashCode()
-            => NameContext?.GetHashCode() ?? 0 ^ Name?.GetHashCode() ?? 0;
+            => Origin?.GetHashCode() ?? 0 ^ Name?.GetHashCode() ?? 0;
 
         public override string ToString()
         {
-            if (NameContext == null) return "";
-            return $"{NameContext.GetName().Name}::{Name}";
+            if (Origin == null) return ""; // for if this was default constructed
+            return $"{Origin}::{Name}";
         }
     }
 }

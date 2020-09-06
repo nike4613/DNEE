@@ -3,10 +3,10 @@
     internal class TypedHandler2<T, R> : IHandler
     {
         public EventName Event { get; }
-        public EventManager.ReturnEventHandler<T, R> HandlerFunc { get; }
+        public ReturnEventHandler<T, R> HandlerFunc { get; }
         public HandlerPriority Priority { get; }
 
-        public TypedHandler2(in EventName name, EventManager.ReturnEventHandler<T, R> func, HandlerPriority priority)
+        public TypedHandler2(in EventName name, ReturnEventHandler<T, R> func, HandlerPriority priority)
         {
             Event = name;
             HandlerFunc = func;

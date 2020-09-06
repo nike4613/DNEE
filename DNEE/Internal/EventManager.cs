@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 
-namespace DNEE
+namespace DNEE.Internal
 {
-    public static partial class EventManager
+    internal static class EventManager
     {
         internal sealed class HandlerSetCell
         {
@@ -16,7 +16,7 @@ namespace DNEE
 
         private static readonly ConcurrentDictionary<EventName, HandlerSetCell> EventHandlers = new();
 
-        private static EventHandle AtomicAddHandler(in EventName @event, IHandler handler)
+        private static EventHandle AtomicAddHandler(EventSource source, in EventName @event, IHandler handler)
         {
             var cell = EventHandlers.GetOrAdd(@event, _ => new HandlerSetCell());
 
@@ -29,7 +29,7 @@ namespace DNEE
             }
             while (Interlocked.CompareExchange(ref cell.Handlers, handlers, original) != original);
 
-            return new EventHandle(cell, handler);
+            return new EventHandle(cell, handler, source);
         }
 
         private static void AtomicRemoveHandler(in EventHandle handle)
@@ -48,29 +48,30 @@ namespace DNEE
         }
 
         #region Register/Unregister
-        private static EventHandle SubscribeInternal(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
+        internal static EventHandle SubscribeInternal(EventSource source, in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(@event, new DynamicHandler(@event, handler, priority));
+            return AtomicAddHandler(source, @event, new DynamicHandler(@event, handler, priority));
         }
 
-        private static EventHandle SubscribeInternal<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
+        internal static EventHandle SubscribeInternal<T>(EventSource source, in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(@event, new TypedHandler1<T>(@event, handler, priority));
+            return AtomicAddHandler(source, @event, new TypedHandler1<T>(@event, handler, priority));
         }
 
-        private static EventHandle SubscribeInternal<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
+        internal static EventHandle SubscribeInternal<T, R>(EventSource source, in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(@event, new TypedHandler2<T, R>(@event, handler, priority));
+            return AtomicAddHandler(source, @event, new TypedHandler2<T, R>(@event, handler, priority));
         }
 
-        private static void UnsubscribeInternal(in EventHandle handle)
+        internal static void UnsubscribeInternal(in EventHandle handle)
         {
+            // this has the EventSource in the handle
             AtomicRemoveHandler(handle);
         }
         #endregion
 
         #region Send
-        private static InternalEventResult DynamicSendInternal(in EventName @event, dynamic? data)
+        internal static InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
@@ -78,7 +79,7 @@ namespace DNEE
             return cell.Handlers.Invoker.InvokeWithData((object?)data);
         }
 
-        private static InternalEventResult TypedSendInternal<T>(in EventName @event, in T data)
+        internal static InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
@@ -89,8 +90,8 @@ namespace DNEE
 
             return invoker.InvokeWithData(data);
         }
-        
-        private static InternalEventResult<R> TypedSendInternal<T, R>(in EventName @event, in T data)
+
+        internal static InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event

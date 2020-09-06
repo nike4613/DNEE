@@ -79,6 +79,15 @@ namespace DNEE.Internal {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The provided origin is not valid!.
+        /// </summary>
+        internal static string EventName_OriginNotValid {
+            get {
+                return ResourceManager.GetString("EventName_OriginNotValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Event name is not valid!.
         /// </summary>
         internal static string EventNameInvalid {
@@ -88,11 +97,47 @@ namespace DNEE.Internal {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The provided EventHandle was not created by this EventSource..
+        /// </summary>
+        internal static string EventSource_HandleNotFromThisSource {
+            get {
+                return ResourceManager.GetString("EventSource_HandleNotFromThisSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The provided origin is already attached to an event source!.
+        /// </summary>
+        internal static string EventSource_OriginAlreadyAttached {
+            get {
+                return ResourceManager.GetString("EventSource_OriginAlreadyAttached", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Next can only be invoked once!.
         /// </summary>
         internal static string Handler_NextInvokedOnceOnly {
             get {
                 return ResourceManager.GetString("Handler_NextInvokedOnceOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not get the constructing member for DataOrigin.
+        /// </summary>
+        internal static string Origin_CouldNotGetConstructingMember {
+            get {
+                return ResourceManager.GetString("Origin_CouldNotGetConstructingMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {3}({1}::{0} for {2}).
+        /// </summary>
+        internal static string Origin_StringFormat {
+            get {
+                return ResourceManager.GetString("Origin_StringFormat", resourceCulture);
             }
         }
     }

@@ -8,42 +8,44 @@ namespace _EventSystemTest
     {
         static void Main(string[] args)
         {
-            var ev1 = EventName.InSelf("Event1");
-            var ev2 = EventName.InSelf("Event2");
+            var source = new EventSource("EventSystemTest");
 
-            using var h1 = EventManager.SubscribeTo(ev1, (@event, data) =>
+            var ev1 = source.Event("Event1");
+            var ev2 = source.Event("Event2");
+
+            using var h1 = source.SubscribeTo(ev1, (@event, data) =>
             {
                 Console.WriteLine($"(h1) {ev1} invoked with {@event} and {data}");
                 var ret = @event.Next(data);
                 Console.WriteLine($"(h1) Next returned {ret}");
             }, (HandlerPriority)1);
 
-            using var h2 = EventManager.SubscribeTo(ev2, (@event, data) =>
+            using var h2 = source.SubscribeTo(ev2, (@event, data) =>
             {
                 Console.WriteLine($"(h2) {ev2} invoked with {@event} and {data}");
                 //var ret = @event.Next(data);
                 @event.NextAndTryTransform((object?)data, a => a);
             }, (HandlerPriority)1);
 
-            using var h3 = EventManager.SubscribeTo(ev1, (@event, data) =>
+            using var h3 = source.SubscribeTo(ev1, (@event, data) =>
             {
                 Console.WriteLine($"(h3) {ev1} invoked with {@event} and {data}");
                 @event.Result = ev1;
             }, (HandlerPriority)0);
 
-            using var h4 = EventManager.SubscribeTo(ev2, (@event, data) =>
+            using var h4 = source.SubscribeTo(ev2, (@event, data) =>
             {
                 Console.WriteLine($"(h4) {ev2} invoked with {@event} and {data}");
                 @event.Result = ev2;
             }, (HandlerPriority)0);
 
-            using var h5 = EventManager.SubscribeTo(ev2, (@event, data) =>
+            using var h5 = source.SubscribeTo(ev2, (@event, data) =>
             {
                 Console.WriteLine($"(h5) {ev2} invoked with {@event} and {data}");
                 @event.Result = ev2;
             }, (HandlerPriority)(-1));
 
-            using var h6 = EventManager.SubscribeTo<EventName>(ev1, (@event, data) =>
+            using var h6 = source.SubscribeTo<EventName>(ev1, (@event, data) =>
             {
                 if (data.HasValue)
                     Console.WriteLine($"(h6) Data found of type EventName: {data.Value}");
@@ -54,7 +56,7 @@ namespace _EventSystemTest
 
             }, (HandlerPriority)2);
 
-            using var h7 = EventManager.SubscribeTo<EventName>(ev1, (@event, data) =>
+            using var h7 = source.SubscribeTo<EventName>(ev1, (@event, data) =>
             {
                 if (data.HasValue)
                     Console.WriteLine($"(h7) Data found of type EventName: {data.Value}");
@@ -67,7 +69,7 @@ namespace _EventSystemTest
 
             }, (HandlerPriority)(-2));
 
-            using var h8 = EventManager.SubscribeTo<EventName>(ev1, (@event, data) =>
+            using var h8 = source.SubscribeTo<EventName>(ev1, (@event, data) =>
             {
                 if (data.HasValue)
                     Console.WriteLine($"(h8) Data found of type EventName: {data.Value}");
@@ -80,24 +82,25 @@ namespace _EventSystemTest
 
             }, (HandlerPriority)(-4));
 
-            using var h9 = EventManager.SubscribeTo<EventName>(ev1, (@event, data) =>
+            using var h9 = source.SubscribeTo<EventName>(ev1, (@event, data) =>
             {
                 @event.NextAndTryTransform(data, _ => _);
             }, (HandlerPriority)(-3));
 
             try
             {
-                EventManager.SendEventDynamic(ev1, ev2);
-                Console.WriteLine();
-                EventManager.SendEventDynamic(ev2, ev1);
+                source.SendEventDynamic(ev1, ev2);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
             }
 
-            EventManager.Unsubscribe(h1);
-            EventManager.Unsubscribe(h2);
+            Console.WriteLine();
+            source.SendEventDynamic(ev2, ev1);
+
+            source.Unsubscribe(h1);
+            source.Unsubscribe(h2);
         }
     }
 }
