@@ -16,7 +16,7 @@ namespace DNEE
 
         public MemberInfo Member { get; }
 
-        public virtual bool ShouldTrustByDefault => true;
+        public virtual bool ShouldAssumeTrusted => true;
 
         public DataOrigin(string name, MemberInfo? member = null)
         {
