@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text;
 
@@ -7,25 +8,24 @@ namespace DNEE.Internal
 {
     internal class DynamicInvoker : IHandlerInvoker
     {
-        private readonly EventName @event;
         private readonly DynamicHandler handler;
         private readonly IHandlerInvoker continuation;
 
-        public DynamicInvoker(in EventName name, DynamicHandler handler, IHandlerInvoker continueWith)
+        public DataOrigin Origin => handler.Origin;
+
+        public DynamicInvoker(DynamicHandler handler, IHandlerInvoker continueWith)
         {
-            @event = name;
             this.handler = handler;
             continuation = continueWith;
         }
 
-        public InternalEventResult InvokeWithData(dynamic? data)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin)
         {
-            var @event = new DynamicInvokedEvent(this.@event, this);
+            var @event = new DynamicInvokedEvent(dataOrigin, handler.Event, this);
 
             ExceptionDispatchInfo? caught = null;
             try
             {
-                // TODO: what do I want to do about exceptions?
                 handler.HandlerFunc.Invoke(@event, (object?)data);
             }
             catch (Exception e)
@@ -35,16 +35,17 @@ namespace DNEE.Internal
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
             {
-                var result = InvokeContinuation((object?)data);
+                var result = InvokeContinuation((object?)data, dataOrigin);
                 caught = InternalEventResult.CombineExceptions(caught, result.Exception);
             }
 
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        internal InternalEventResult InvokeContinuation(dynamic? data)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal InternalEventResult InvokeContinuation(dynamic? data, DataOrigin origin)
         {
-            return continuation.InvokeWithData((object?)data);
+            return continuation.InvokeWithData((object?)data, origin);
         }
     }
 }

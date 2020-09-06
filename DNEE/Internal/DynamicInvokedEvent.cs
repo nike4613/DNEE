@@ -9,8 +9,9 @@ namespace DNEE.Internal
     {
         private readonly DynamicInvoker invoker;
 
-        public DynamicInvokedEvent(in EventName name, DynamicInvoker invoker)
+        public DynamicInvokedEvent(DataOrigin dataOrigin, in EventName name, DynamicInvoker invoker)
         {
+            DataOrigin = dataOrigin;
             EventName = name;
             this.invoker = invoker;
         }
@@ -22,6 +23,8 @@ namespace DNEE.Internal
         public bool DidCallNext { get; private set; } = false;
         public bool AlwaysInvokeNext { get; set; } = true;
 
+        public DataOrigin DataOrigin { get; }
+
         public EventResult Next(dynamic? data)
         {
             if (DidCallNext)
@@ -29,7 +32,7 @@ namespace DNEE.Internal
 
             DidCallNext = true;
 
-            return invoker.InvokeContinuation((object?)data).Unwrap();
+            return invoker.InvokeContinuation((object?)data, invoker.Origin).Unwrap();
         }
 
         public EventResult GetEventResult()

@@ -8,7 +8,9 @@ namespace DNEE.Internal
     {
         public static readonly EmptyHandlerInvoker Invoker = new();
 
-        public InternalEventResult InvokeWithData(dynamic? data)
+        private EmptyHandlerInvoker() { }
+
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin origin)
             => default;
     }
 }

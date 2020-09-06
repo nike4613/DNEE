@@ -10,8 +10,9 @@ namespace DNEE.Internal
 
         private readonly TypedInvoker2<T, R> invoker;
 
-        public TypedInvokedEvent2(in EventName name, TypedInvoker2<T, R> invoker, dynamic? data)
+        public TypedInvokedEvent2(DataOrigin dataOrigin, in EventName name, TypedInvoker2<T, R> invoker, dynamic? data)
         {
+            DataOrigin = dataOrigin;
             EventName = name;
             this.invoker = invoker;
             DynamicData = data;
@@ -44,13 +45,15 @@ namespace DNEE.Internal
             }
         }
 
+        public DataOrigin DataOrigin { get; }
+
         public EventResult Next(dynamic? data)
         {
             if (DidCallNext)
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationDynamic((object?)data).Unwrap();
+            return invoker.InvokeContinuationDynamic((object?)data, invoker.Origin).Unwrap();
         }
 
         EventResult IEvent<T>.Next(in T data)
@@ -62,7 +65,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationTyped(data).Unwrap();
+            return invoker.InvokeContinuationTyped(data, invoker.Origin).Unwrap();
         }
 
         public EventResult<R> GetEventResult()

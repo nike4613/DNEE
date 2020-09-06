@@ -7,11 +7,13 @@ namespace DNEE.Internal
     internal class DynamicHandler : IHandler
     {
         public EventName Event { get; }
+        public DataOrigin Origin { get; }
         public DynamicEventHandler HandlerFunc { get; }
         public HandlerPriority Priority { get; }
 
-        public DynamicHandler(in EventName name, DynamicEventHandler func, HandlerPriority priority)
+        public DynamicHandler(DataOrigin origin, in EventName name, DynamicEventHandler func, HandlerPriority priority)
         {
+            Origin = origin;
             Event = name;
             HandlerFunc = func;
             Priority = priority;
@@ -19,7 +21,7 @@ namespace DNEE.Internal
 
         public IHandlerInvoker CreateInvokerWithContinuation(IHandlerInvoker continueWith)
         {
-            return new DynamicInvoker(Event, this, continueWith);
+            return new DynamicInvoker(this, continueWith);
         }
     }
 }

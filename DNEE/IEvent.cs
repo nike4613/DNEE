@@ -4,6 +4,7 @@ namespace DNEE
 {
     public interface IEvent
     {
+        DataOrigin DataOrigin { get; }
         EventName EventName { get; }
         dynamic? Result { set; }
 

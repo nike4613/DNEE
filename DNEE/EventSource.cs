@@ -9,7 +9,7 @@ namespace DNEE
 {
     public sealed class EventSource
     {
-        private DataOrigin Origin { get; }
+        public DataOrigin Origin { get; }
 
         public EventSource(string name)
         {

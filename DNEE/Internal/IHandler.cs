@@ -2,11 +2,11 @@
 {
     internal interface IHandler
     {
-
-        // TODO: implement
         EventName Event { get; }
 
         HandlerPriority Priority { get; }
+
+        DataOrigin Origin { get; }
 
         IHandlerInvoker CreateInvokerWithContinuation(IHandlerInvoker continueWith);
     }

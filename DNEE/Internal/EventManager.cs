@@ -50,17 +50,17 @@ namespace DNEE.Internal
         #region Register/Unregister
         internal static EventHandle SubscribeInternal(EventSource source, in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new DynamicHandler(@event, handler, priority));
+            return AtomicAddHandler(source, @event, new DynamicHandler(source.Origin, @event, handler, priority));
         }
 
         internal static EventHandle SubscribeInternal<T>(EventSource source, in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new TypedHandler1<T>(@event, handler, priority));
+            return AtomicAddHandler(source, @event, new TypedHandler1<T>(source.Origin, @event, handler, priority));
         }
 
         internal static EventHandle SubscribeInternal<T, R>(EventSource source, in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new TypedHandler2<T, R>(@event, handler, priority));
+            return AtomicAddHandler(source, @event, new TypedHandler2<T, R>(source.Origin, @event, handler, priority));
         }
 
         internal static void UnsubscribeInternal(in EventHandle handle)
@@ -76,7 +76,7 @@ namespace DNEE.Internal
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
 
-            return cell.Handlers.Invoker.InvokeWithData((object?)data);
+            return cell.Handlers.Invoker.InvokeWithData((object?)data, source.Origin);
         }
 
         internal static InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data)
@@ -86,9 +86,9 @@ namespace DNEE.Internal
 
             var invoker = cell.Handlers.Invoker;
             if (invoker is IHandlerInvoker<T> typed)
-                return typed.InvokeWithData(data);
+                return typed.InvokeWithData(data, source.Origin);
 
-            return invoker.InvokeWithData(data);
+            return invoker.InvokeWithData(data, source.Origin);
         }
 
         internal static InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data)
@@ -100,11 +100,11 @@ namespace DNEE.Internal
             if (invoker is IHandlerInvoker<T> typed)
             {
                 if (typed is IHandlerInvoker<T, R> typed2)
-                    return typed2.InvokeWithData(data);
-                return typed.InvokeWithData(data);
+                    return typed2.InvokeWithData(data, source.Origin);
+                return typed.InvokeWithData(data, source.Origin);
             }
 
-            return invoker.InvokeWithData(data);
+            return invoker.InvokeWithData(data, source.Origin);
         }
         #endregion
     }
