@@ -141,6 +141,9 @@
   <data name="Origin_CouldNotGetConstructingMember" xml:space="preserve">
     <value>Could not get the constructing member for DataOrigin</value>
   </data>
+  <data name="Origin_NameCannotBeNullOrWhitespace" xml:space="preserve">
+    <value>Origin name cannot be null or only whitespace!</value>
+  </data>
   <data name="Origin_SourceSetOnceOnly" xml:space="preserve">
     <value>Source can only be set once!</value>
   </data>

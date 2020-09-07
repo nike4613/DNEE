@@ -133,6 +133,15 @@ namespace DNEE.Internal.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Origin name cannot be null or only whitespace!.
+        /// </summary>
+        internal static string Origin_NameCannotBeNullOrWhitespace {
+            get {
+                return ResourceManager.GetString("Origin_NameCannotBeNullOrWhitespace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Source can only be set once!.
         /// </summary>
         internal static string Origin_SourceSetOnceOnly {

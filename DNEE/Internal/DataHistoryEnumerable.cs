@@ -5,6 +5,8 @@ using System.Text;
 
 namespace DNEE.Internal
 {
+    // TODO: maybe get rid of one of these?
+
     internal sealed class DataHistoryEnumerable : IEnumerable<DataWithOrigin>
     {
         private readonly IDataHistoryNode first;
