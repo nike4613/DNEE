@@ -20,14 +20,15 @@ namespace DNEE.Internal
         {
             var cell = EventHandlers.GetOrAdd(@event, _ => new HandlerSetCell());
 
-            HandlerSet original, handlers;
+            HandlerSet original = cell.Handlers, handlers, orig2;
             do
             {
-                original = cell.Handlers;
+                orig2 = original;
                 handlers = original.Copy();
                 handlers.Add(handler);
+                original = Interlocked.CompareExchange(ref cell.Handlers, handlers, orig2);
             }
-            while (Interlocked.CompareExchange(ref cell.Handlers, handlers, original) != original);
+            while (original != orig2);
 
             return new EventHandle(cell, handler, source);
         }
@@ -37,14 +38,15 @@ namespace DNEE.Internal
             var cell = handle.Cell;
             var handler = handle.Handler;
 
-            HandlerSet original, handlers;
+            HandlerSet original = cell.Handlers, handlers, orig2;
             do
             {
-                original = cell.Handlers;
+                orig2 = original;
                 handlers = original.Copy();
                 handlers.Remove(handler);
+                original = Interlocked.CompareExchange(ref cell.Handlers, handlers, orig2);
             }
-            while (Interlocked.CompareExchange(ref cell.Handlers, handlers, original) != original);
+            while (original != orig2);
         }
 
         #region Register/Unregister
