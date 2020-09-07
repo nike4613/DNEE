@@ -92,7 +92,7 @@ namespace DNEE
         private static MethodBase GetConstructingMethod(int skipFrames = 0)
         {
             var trace = new StackTrace(2 + skipFrames, false);
-            for (int i = trace.FrameCount - 1; i >= 0; i--)
+            for (int i = 0; i < trace.FrameCount; i++)
             {
                 var frame = trace.GetFrame(i);
                 var method = frame.GetMethod();
