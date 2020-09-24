@@ -30,7 +30,7 @@ namespace DNEE.Internal
             }
             while (original != orig2);
 
-            return new EventHandle(cell, handler, source);
+            return new EventHandle(cell, handler, source.Origin);
         }
 
         private static void AtomicRemoveHandler(in EventHandle handle)
@@ -68,7 +68,14 @@ namespace DNEE.Internal
         internal static void UnsubscribeInternal(in EventHandle handle)
         {
             // this has the EventSource in the handle
-            AtomicRemoveHandler(handle);
+            try
+            {
+                AtomicRemoveHandler(handle);
+            }
+            finally
+            {
+                handle.InvokeUnsubEvents();
+            }
         }
         #endregion
 

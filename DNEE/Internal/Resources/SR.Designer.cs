@@ -70,6 +70,15 @@ namespace DNEE.Internal.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to While executing the unsubscription handlers for {0}, one or more exceptions were thrown..
+        /// </summary>
+        internal static string EventHandle_UnsubHandlersThrew {
+            get {
+                return ResourceManager.GetString("EventHandle_UnsubHandlersThrew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Event handle is not valid!.
         /// </summary>
         internal static string EventHandleInvalid {

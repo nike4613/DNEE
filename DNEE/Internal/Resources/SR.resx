@@ -123,6 +123,10 @@
   <data name="EventHandleInvalid" xml:space="preserve">
     <value>Event handle is not valid!</value>
   </data>
+  <data name="EventHandle_UnsubHandlersThrew" xml:space="preserve">
+    <value>While executing the unsubscription handlers for {0}, one or more exceptions were thrown.</value>
+    <comment>{0} is the name of the event</comment>
+  </data>
   <data name="EventNameInvalid" xml:space="preserve">
     <value>Event name is not valid!</value>
   </data>

@@ -145,11 +145,13 @@ namespace DNEE
         /// <param name="handle">The <see cref="EventHandle"/> representing the handler to unsubscribe.</param>
         /// <exception cref="ArgumentException">Thrown if <paramref name="handle"/> is not valid 
         /// -OR- if <paramref name="handle"/> was not subscribed with this <see cref="EventSource"/>.</exception>
+        /// <exception cref="AggregateException">Thrown if the unsubscription handler(s) from <paramref name="handle"/>
+        /// threw. When this is thrown, the event is still unsubscribed.</exception>
         public void Unsubscribe(in EventHandle handle)
         {
             if (!handle.IsValid)
                 throw new ArgumentException(SR.EventHandleInvalid, nameof(handle));
-            if (handle.Source != this)
+            if (handle.Origin != Origin)
                 throw new ArgumentException(SR.EventSource_HandleNotFromThisSource, nameof(handle));
 
             EventManager.UnsubscribeInternal(handle);
