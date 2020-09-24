@@ -20,7 +20,7 @@ namespace DNEE
         /// <summary>
         /// Sets the result of this invocation, if any.
         /// </summary>
-        dynamic? Result { set; }
+        dynamic? Result { get; set; }
 
         /// <summary>
         /// Whether or not <see cref="Next(dynamic?)"/> must always be invoked, either by the event
@@ -92,16 +92,16 @@ namespace DNEE
 
     /// <summary>
     /// An event invocation that takes a strongly-typed value of type <typeparamref name="T"/>,
-    /// and returns a strongly-typed value of type <typeparamref name="R"/>.
+    /// and returns a strongly-typed value of type <typeparamref name="TRet"/>.
     /// </summary>
     /// <typeparam name="T">The type to expect the data to be.</typeparam>
-    /// <typeparam name="R">The type that the result will be.</typeparam>
-    public interface IEvent<T, R> : IEvent<T>
+    /// <typeparam name="TRet">The type that the result will be.</typeparam>
+    public interface IEvent<T, TRet> : IEvent<T>
     {
         /// <summary>
         /// Sets the result of this invocation, if any.
         /// </summary>
-        new R Result { set; }
+        new TRet Result { get; set; }
 
         /// <summary>
         /// Invokes the next event handler for this event with the specified data.
@@ -111,6 +111,6 @@ namespace DNEE
         /// </remarks>
         /// <param name="data">The data to pass to the next handler.</param>
         /// <returns>An <see cref="EventResult{T}"/> wrapping the result of that event handler.</returns>
-        new EventResult<R> Next(in T data);
+        new EventResult<TRet> Next(in T data);
     }
 }

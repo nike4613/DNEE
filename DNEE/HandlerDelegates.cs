@@ -23,11 +23,11 @@ namespace DNEE
 
     /// <summary>
     /// An event handler that takes a value of type <typeparamref name="T"/> and returns a strongly
-    /// typed value of type <typeparamref name="R"/>.
+    /// typed value of type <typeparamref name="TRet"/>.
     /// </summary>
     /// <typeparam name="T">The type of the data parameter.</typeparam>
-    /// <typeparam name="R">The type of the result value.</typeparam>
+    /// <typeparam name="TRet">The type of the result value.</typeparam>
     /// <param name="event">The <see cref="IEvent{T, R}"/> representing this invocation.</param>
     /// <param name="data">The data provided for this invocation.</param>
-    public delegate void ReturnEventHandler<T, R>(IEvent<T, R> @event, Maybe<T> data);
+    public delegate void ReturnEventHandler<T, TRet>(IEvent<T, TRet> @event, Maybe<T> data);
 }

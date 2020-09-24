@@ -2,6 +2,7 @@
 using DNEE.Internal.Resources;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
@@ -10,7 +11,7 @@ namespace DNEE
     /// <summary>
     /// A handle representing an event handler subscribed to an event.
     /// </summary>
-    public struct EventHandle : IDisposable
+    public struct EventHandle : IDisposable, IEquatable<EventHandle>
     {
         /// <summary>
         /// Gets whether or not this handle is valid.
@@ -30,6 +31,9 @@ namespace DNEE
         }
 
         private event Action UnsubEvent;
+
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", 
+            Justification = "The caught exceptions arre aggregated and rethrown later.")]
         internal void InvokeUnsubEvents()
         {
             var exceptions = new List<Exception>();
@@ -48,7 +52,7 @@ namespace DNEE
             if (exceptions.Count != 0)
             {
                 throw new AggregateException(
-                    string.Format(SR.EventHandle_UnsubHandlersThrew, Handler.Event),
+                    string.Format(SR.Culture, SR.EventHandle_UnsubHandlersThrew, Handler.Event),
                     exceptions
                 );
             }
@@ -73,5 +77,40 @@ namespace DNEE
         {
             EventManager.UnsubscribeInternal(this);
         }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+            => obj is EventHandle eh && Equals(eh);
+
+        /// <inheritdoc/>
+        public bool Equals(EventHandle other)
+            => Origin == other.Origin && Cell == other.Cell && Handler == other.Handler && UnsubEvent == other.UnsubEvent;
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            int hashCode = -1433727288;
+            hashCode = hashCode * -1521134295 + IsValid.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<DataOrigin>.Default.GetHashCode(Origin);
+            hashCode = hashCode * -1521134295 + EqualityComparer<EventManager.HandlerSetCell>.Default.GetHashCode(Cell);
+            hashCode = hashCode * -1521134295 + EqualityComparer<IHandler>.Default.GetHashCode(Handler);
+            return hashCode;
+        }
+
+        /// <summary>
+        /// Compares two <see cref="EventHandle"/>s for equality.
+        /// </summary>
+        /// <param name="left">The first handle to compare.</param>
+        /// <param name="right">The second handle to compare.</param>
+        /// <returns><see langword="true"/> if they are equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator ==(EventHandle left, EventHandle right) => left.Equals(right);
+
+        /// <summary>
+        /// Compares two <see cref="EventHandle"/>s for inequality.
+        /// </summary>
+        /// <param name="left">The first handle to compare.</param>
+        /// <param name="right">The second handle to compare.</param>
+        /// <returns><see langword="true"/> if they are not equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator !=(EventHandle left, EventHandle right) => !(left == right);
     }
 }

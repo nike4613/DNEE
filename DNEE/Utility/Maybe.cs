@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace DNEE.Utility
@@ -8,7 +9,7 @@ namespace DNEE.Utility
     /// <summary>
     /// A convenience type for creating instances of <see cref="Maybe{T}"/>.
     /// </summary>
-    public class Maybe
+    public sealed class Maybe
     {
         private Maybe() { }
 
@@ -51,9 +52,12 @@ namespace DNEE.Utility
         /// </summary>
         public bool HasValue { get; }
 
+
         /// <summary>
         /// Gets the empty <see cref="Maybe{T}"/>.
         /// </summary>
+        [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", 
+            Justification = "All uses of this can be replaced by Maybe.None (which implicitly converts for nice type inference)")]
         public static Maybe<T> None => default;
 
         /// <summary>
@@ -66,6 +70,14 @@ namespace DNEE.Utility
             this.value = value;
             HasValue = true;
         }
+
+        /// <summary>
+        /// Gets the stored value, or the value specified as <paramref name="value"/>.
+        /// </summary>
+        /// <param name="value">The value to use if there is no specified value.</param>
+        /// <returns><see cref="Value"/>, if present, otherwise <paramref name="value"/>.</returns>
+        public T ValueOr(T value)
+            => HasValue ? Value : value;
 
         /// <summary>
         /// Checks if this <see cref="Maybe{T}"/> is equal to <paramref name="other"/>.
@@ -104,25 +116,6 @@ namespace DNEE.Utility
         /// <returns><see langword="true"/> if they are not equal, <see langword="false"/> otherwise.</returns>
         public static bool operator !=(Maybe<T> a, Maybe<T> b) => !(a == b);
 
-        /// <summary>
-        /// Checks if <paramref name="a"/> contains a value. Equivalent to <see cref="HasValue"/>.
-        /// </summary>
-        /// <param name="a">The value to check.</param>
-        /// <returns>The value of <see cref="HasValue"/>.</returns>
-        public static bool operator true(Maybe<T> a) => a.HasValue;
-        /// <summary>
-        /// Checks if <paramref name="a"/> does not contain a value. Equivalent to the inverse of <see cref="HasValue"/>.
-        /// </summary>
-        /// <param name="a">The value to check.</param>
-        /// <returns>The inverse of <see cref="HasValue"/>.</returns>
-        public static bool operator false(Maybe<T> a) => !a.HasValue;
-        /// <summary>
-        /// Returns <paramref name="a"/> if <paramref name="a"/> has a value, otherwise <paramref name="b"/>.
-        /// </summary>
-        /// <param name="a">The left argument.</param>
-        /// <param name="b">The right argument.</param>
-        /// <returns><paramref name="a"/> if <paramref name="a"/> has a value, otherwise <paramref name="b"/>.</returns>
-        public static Maybe<T> operator |(Maybe<T> a, Maybe<T> b) => a.HasValue ? a : b;
 
         /// <summary>
         /// Wraps a value of type <typeparamref name="T"/>.
@@ -130,11 +123,17 @@ namespace DNEE.Utility
         /// <param name="value">The value to wrap.</param>
         /// <seealso cref="Maybe{T}.Maybe(T)"/>
         /// <seealso cref="Maybe.Some{T}(T)"/>
+        [SuppressMessage("Usage", "CA2225:Operator overloads have named alternates", 
+            Justification = "The named alternative is the constructor.")]
         public static explicit operator Maybe<T>(T value) => new Maybe<T>(value);
+
+
         /// <summary>
         /// Implicitly converts the result of <see cref="Maybe.None"/> into <see cref="None"/>.
         /// </summary>
         /// <param name="_"><see cref="Maybe.None"/>.</param>
+        [SuppressMessage("Usage", "CA2225:Operator overloads have named alternates", 
+            Justification = "This exists solely for type inference of the form Maybe.None.")]
         public static implicit operator Maybe<T>(Maybe _) => None;
 
         /// <summary>

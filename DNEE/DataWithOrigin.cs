@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace DNEE
@@ -7,6 +8,8 @@ namespace DNEE
     /// <summary>
     /// A wrapper struct representing a piece of <see langword="dynamic"/> data and an associated <see cref="DataOrigin"/>.
     /// </summary>
+    [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", 
+        Justification = "This is a simple wrapper type; it shouldn't be compared.")]
     public struct DataWithOrigin
     {
         /// <summary>
@@ -39,6 +42,8 @@ namespace DNEE
     /// A wrapper struct representing a piece of (possibly) typed data and an associated <see cref="DataOrigin"/>.
     /// </summary>
     /// <typeparam name="T">The type that the data is expected to be.</typeparam>
+    [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types",
+        Justification = "This is a simple wrapper type; it shouldn't be compared.")]
     public struct DataWithOrigin<T>
     {
         /// <summary>

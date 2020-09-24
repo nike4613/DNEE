@@ -87,7 +87,7 @@ namespace DNEE
 
         /// <inheritdoc/>
         public override string ToString()
-            => string.Format(SR.Origin_StringFormat, Name, Assembly.GetName().Name, Member.Name, GetType().Name);
+            => string.Format(SR.Culture, SR.Origin_StringFormat, Name, Assembly.GetName().Name, Member.Name, GetType().Name);
 
         private static MethodBase GetConstructingMethod(int skipFrames = 0)
         {

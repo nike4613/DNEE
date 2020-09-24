@@ -17,5 +17,15 @@ namespace DNEE
         public HandlerInvocationException(string message, Exception innerException) : base(message, innerException)
         {
         }
+
+        /// <inheritdoc/>
+        public HandlerInvocationException()
+        {
+        }
+
+        /// <inheritdoc/>
+        public HandlerInvocationException(string message) : base(message)
+        {
+        }
     }
 }

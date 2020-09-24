@@ -51,8 +51,11 @@ namespace DNEE
         /// </summary>
         /// <param name="origin">The origin to use for this <see cref="EventSource"/>.</param>
         /// <exception cref="ArgumentException">Thrown if <paramref name="origin"/> is already associated with another <see cref="EventSource"/>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="origin"/> is <see langword="null"/>.</exception>
         public EventSource(DataOrigin origin)
         {
+            if (origin is null)
+                throw new ArgumentNullException(nameof(origin));
             if (origin.IsValid)
                 throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
 
@@ -122,14 +125,14 @@ namespace DNEE
         /// and priority <paramref name="priority"/>.
         /// </summary>
         /// <typeparam name="T">The type that the handler expects from its data.</typeparam>
-        /// <typeparam name="R">The type that the handler expects to return.</typeparam>
+        /// <typeparam name="TRet">The type that the handler expects to return.</typeparam>
         /// <param name="event">The event to subscribe to.</param>
         /// <param name="handler">The handler to subscribe to the event with.</param>
         /// <param name="priority">The priority with which <paramref name="handler"/> should be invoked. Higher is earlier.</param>
         /// <returns>An <see cref="EventHandle"/> representing the subscription.</returns>
         /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="handler"/> is null.</exception>
-        public EventHandle SubscribeTo<T, R>(in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
+        public EventHandle SubscribeTo<T, TRet>(in EventName @event, ReturnEventHandler<T, TRet> handler, HandlerPriority priority)
         {
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
@@ -164,7 +167,8 @@ namespace DNEE
         /// <param name="data">The data to pass to the handlers.</param>
         /// <returns>An <see cref="EventResult"/> representing the result of the invocations.</returns>
         /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
-        /// <exception cref="HandlerInvocationException">Thrown if the event handlers throw. <see cref="Exception.InnerException"/> contains the thrown exception.</exception>
+        /// <exception cref="HandlerInvocationException">Thrown if the event handlers throw. <see cref="Exception.InnerException"/> 
+        /// contains the thrown exception.</exception>
         public EventResult SendEventDynamic(in EventName @event, dynamic? data)
         {
             if (!@event.IsValid)
@@ -176,7 +180,7 @@ namespace DNEE
             }
             catch (Exception e)
             {
-                throw new HandlerInvocationException(string.Format(SR.ErrorInvokingEvents, @event), e);
+                throw new HandlerInvocationException(string.Format(SR.Culture, SR.ErrorInvokingEvents, @event), e);
             }
         }
 
@@ -200,7 +204,7 @@ namespace DNEE
             }
             catch (Exception e)
             {
-                throw new HandlerInvocationException(string.Format(SR.ErrorInvokingEvents, @event), e);
+                throw new HandlerInvocationException(string.Format(SR.Culture, SR.ErrorInvokingEvents, @event), e);
             }
         }
 
@@ -208,24 +212,24 @@ namespace DNEE
         /// Invokes the handlers for the event identified by <paramref name="event"/> with <paramref name="data"/> as their argument.
         /// </summary>
         /// <typeparam name="T">The type of the data to pass to the handlers.</typeparam>
-        /// <typeparam name="R">The type that the event is expected to return.</typeparam>
+        /// <typeparam name="TRet">The type that the event is expected to return.</typeparam>
         /// <param name="event">The event to invoke.</param>
         /// <param name="data">The data to pass to the handlers.</param>
         /// <returns>An <see cref="EventResult{T}"/> representing the result of the invocations.</returns>
         /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
         /// <exception cref="HandlerInvocationException">Thrown if the event handlers throw. <see cref="Exception.InnerException"/> contains the thrown exception.</exception>
-        public EventResult<R> SendEvent<T, R>(in EventName @event, in T data)
+        public EventResult<TRet> SendEvent<T, TRet>(in EventName @event, in T data)
         {
             if (!@event.IsValid)
                 throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
 
             try
             {
-                return EventManager.TypedSendInternal<T, R>(this, @event, data).Unwrap();
+                return EventManager.TypedSendInternal<T, TRet>(this, @event, data).Unwrap();
             }
             catch (Exception e)
             {
-                throw new HandlerInvocationException(string.Format(SR.ErrorInvokingEvents, @event), e);
+                throw new HandlerInvocationException(string.Format(SR.Culture, SR.ErrorInvokingEvents, @event), e);
             }
         }
     }

@@ -23,7 +23,7 @@ namespace DNEE.Internal
 
         public EventName EventName { get; }
 
-        public bool DidCallNext { get; private set; } = false;
+        public bool DidCallNext { get; private set; }
         public bool AlwaysInvokeNext { get; set; } = true;
 
         public dynamic? DynamicData { get; }
@@ -31,6 +31,11 @@ namespace DNEE.Internal
         private Maybe<dynamic?> result = Maybe.None;
         dynamic? IEvent.Result
         {
+            get => result.HasValue
+                ? result.Value
+                : typedResult.HasValue
+                ? typedResult.Value
+                : null;
             set
             {
                 result = Maybe.Some((object?)value);
@@ -41,6 +46,7 @@ namespace DNEE.Internal
         private Maybe<R> typedResult = Maybe.None;
         R IEvent<T, R>.Result
         {
+            get => typedResult.ValueOr(result.HasValue && result.Value is R r ? r : default!);
             set
             {
                 typedResult = Maybe.Some(value);

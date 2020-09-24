@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DNEE
 {
@@ -27,12 +28,41 @@ namespace DNEE
         }
 
         /// <inheritdoc/>
+        public override bool Equals(object obj)
+            => obj is EventResult er && Equals(er);
+
+        /// <inheritdoc/>
         public bool Equals(EventResult other)
         {
             if (HasValue ^ other.HasValue) return false;
             if (HasValue) return result == other.result;
             else return true;
         }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            int hashCode = 1254623300;
+            hashCode = hashCode * -1521134295 + HasValue.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<dynamic>.Default.GetHashCode(result);
+            return hashCode;
+        }
+
+        /// <summary>
+        /// Compares two <see cref="EventResult"/>s for equality.
+        /// </summary>
+        /// <param name="left">The first result to compare.</param>
+        /// <param name="right">The second result to compare.</param>
+        /// <returns><see langword="true"/> if they are equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator ==(EventResult left, EventResult right) => left.Equals(right);
+
+        /// <summary>
+        /// Compares two <see cref="EventResult"/>s for inequality.
+        /// </summary>
+        /// <param name="left">The first result to compare.</param>
+        /// <param name="right">The second result to compare.</param>
+        /// <returns><see langword="true"/> if they are not equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator !=(EventResult left, EventResult right) => !(left == right);
     }
 
     /// <summary>
@@ -93,15 +123,40 @@ namespace DNEE
         /// Implicitly converts an <see cref="EventResult{T}"/> to an <see cref="EventResult"/>.
         /// </summary>
         /// <param name="er">The <see cref="EventResult{T}"/> to convert.</param>
+        /// <seealso cref="ToEventResult"/>
         public static implicit operator EventResult(in EventResult<T> er)
-            => er.HasValue ? new EventResult((object?)er.DynamicResult) : default;
+            => er.ToEventResult();
+
+        /// <summary>
+        /// Converts the current <see cref="EventResult{T}"/> to an <see cref="EventResult"/>.
+        /// </summary>
+        /// <returns>The converted value.</returns>
+        public EventResult ToEventResult()
+            => HasValue ? new EventResult((object?)DynamicResult) : default;
 
         /// <summary>
         /// Implicitly converts an <see cref="EventResult"/> to an <see cref="EventResult{T}"/>.
         /// </summary>
         /// <param name="er">The <see cref="EventResult"/> to convert.</param>
+        /// <seealso cref="FromEventResult(in EventResult)"/>
         public static implicit operator EventResult<T>(in EventResult er)
+            => FromEventResult(er);
+
+
+        /// <summary>
+        /// Converts an <see cref="EventResult"/> to an <see cref="EventResult{T}"/>.
+        /// </summary>
+        /// <param name="er">The <see cref="EventResult"/> to convert.</param>
+        /// <returns>The converted value.</returns>
+        [SuppressMessage("Design", "CA1000:Do not declare static members on generic types", 
+            Justification = "No matter what, the generic type parameter will have to be specified.")]
+        public static EventResult<T> FromEventResult(in EventResult er)
             => er.HasValue ? new EventResult<T>((object?)er.Result) : default;
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+            => (obj is EventResult<T> ert && Equals(ert))
+            || (obj is EventResult er && Equals(er));
 
         /// <inheritdoc/>
         public bool Equals(EventResult<T> other)
@@ -126,6 +181,49 @@ namespace DNEE
             {
                 return DynamicResult == other.Result;
             }
+        }
+
+        /// <summary>
+        /// Compares two <see cref="EventResult{T}"/>s for equality.
+        /// </summary>
+        /// <param name="left">The first result to compare.</param>
+        /// <param name="right">The second result to compare.</param>
+        /// <returns><see langword="true"/> if they are equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator ==(EventResult<T> left, EventResult<T> right) => left.Equals(right);
+
+        /// <summary>
+        /// Compares two <see cref="EventResult{T}"/>s for inequality.
+        /// </summary>
+        /// <param name="left">The first result to compare.</param>
+        /// <param name="right">The second result to compare.</param>
+        /// <returns><see langword="true"/> if they are not equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator !=(EventResult<T> left, EventResult<T> right) => !(left == right);
+
+        /// <summary>
+        /// Compares an <see cref="EventResult"/> and an <see cref="EventResult{T}"/> for equality.
+        /// </summary>
+        /// <param name="left">The first result to compare.</param>
+        /// <param name="right">The second result to compare.</param>
+        /// <returns><see langword="true"/> if they are equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator ==(EventResult<T> left, EventResult right) => left.Equals(right);
+
+        /// <summary>
+        /// Compares an <see cref="EventResult"/> and an <see cref="EventResult{T}"/> for inequality.
+        /// </summary>
+        /// <param name="left">The first result to compare.</param>
+        /// <param name="right">The second result to compare.</param>
+        /// <returns><see langword="true"/> if they are not equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator !=(EventResult<T> left, EventResult right) => !(left == right);
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            int hashCode = -1715740316;
+            hashCode = hashCode * -1521134295 + HasValue.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsTyped.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<T>.Default.GetHashCode(typedResult);
+            hashCode = hashCode * -1521134295 + EqualityComparer<dynamic?>.Default.GetHashCode((object?)dynamicResult);
+            return hashCode;
         }
     }
 }

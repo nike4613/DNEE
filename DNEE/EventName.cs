@@ -24,8 +24,13 @@ namespace DNEE
         /// </summary>
         /// <param name="origin">The origin associated with the event.</param>
         /// <param name="name">The name of the event.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="origin"/> is null 
+        /// -OR- if <paramref name="name"/> is null.</exception>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="origin"/> is not a valid origin.</exception>
         public EventName(DataOrigin origin, string name)
         {
+            if (origin is null)
+                throw new ArgumentNullException(nameof(origin));
             if (!origin.IsValid)
                 throw new ArgumentException(SR.EventName_OriginNotValid, nameof(origin));
             if (string.IsNullOrWhiteSpace(name))
@@ -57,5 +62,21 @@ namespace DNEE
             if (Origin == null) return ""; // for if this was default constructed
             return $"{Origin}::{Name}";
         }
+
+        /// <summary>
+        /// Compares two <see cref="EventName"/>s for equality.
+        /// </summary>
+        /// <param name="left">The first name to compare.</param>
+        /// <param name="right">The second name to compare.</param>
+        /// <returns><see langword="true"/> if they are equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator ==(EventName left, EventName right) => left.Equals(right);
+
+        /// <summary>
+        /// Compares two <see cref="EventName"/>s for inequality.
+        /// </summary>
+        /// <param name="left">The first name to compare.</param>
+        /// <param name="right">The second name to compare.</param>
+        /// <returns><see langword="true"/> if they are not equal, <see langword="false"/> otherwise.</returns>
+        public static bool operator !=(EventName left, EventName right) => !(left == right);
     }
 }

@@ -23,8 +23,12 @@ namespace DNEE.Internal
         public EventName EventName { get; }
 
         private Maybe<dynamic?> result = Maybe.None;
-        public dynamic? Result { set => result = Maybe.Some((object?)value); }
-        public bool DidCallNext { get; private set; } = false;
+        public dynamic? Result 
+        {
+            get => result.ValueOr(default);
+            set => result = Maybe.Some((object?)value);
+        }
+        public bool DidCallNext { get; private set; }
         public bool AlwaysInvokeNext { get; set; } = true;
 
         public DataOrigin DataOrigin { get; }

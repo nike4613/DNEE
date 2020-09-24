@@ -23,7 +23,7 @@ namespace DNEE.Internal
         {
             private readonly IDataHistoryNode start;
             private IDataHistoryNode? node;
-            private bool started = false;
+            private bool started;
             internal Enumerator(DataHistoryEnumerable enumerable)
                 => node = start = enumerable.first;
 
@@ -78,7 +78,7 @@ namespace DNEE.Internal
         {
             private readonly IDataHistoryNode start;
             private IDataHistoryNode? node;
-            private bool started = false;
+            private bool started;
             internal Enumerator(DataHistoryEnumerable<T> enumerable)
                 => node = start = enumerable.first;
 

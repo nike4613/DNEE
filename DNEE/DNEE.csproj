@@ -19,8 +19,16 @@
     <PackageProjectUrl>https://github.com/nike4613/DNEE</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nike4613/DNEE</RepositoryUrl>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
 

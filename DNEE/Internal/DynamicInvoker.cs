@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -19,6 +20,9 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types",
+            Justification = "Exceptions are caught and automatically propagated using a custom system that minimizes" +
+                            "our stack in user stack traces.")]
         public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode? lastNode)
         {
             var @event = new DynamicInvokedEvent(dataOrigin, handler.Event, this, (object?)data, lastNode);

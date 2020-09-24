@@ -1,6 +1,7 @@
 ﻿using DNEE.Utility;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -20,6 +21,9 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types",
+            Justification = "Exceptions are caught and automatically propagated using a custom system that minimizes" +
+                            "our stack in user stack traces.")]
         public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var obj = (object?)data;
@@ -50,6 +54,10 @@ namespace DNEE.Internal
         InternalEventResult IHandlerInvoker<T>.InvokeWithData(in T data, DataOrigin origin, IDataHistoryNode? histNode)
             => InvokeWithData(data, origin, histNode);
 
+
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types",
+            Justification = "Exceptions are caught and automatically propagated using a custom system that minimizes" +
+                            "our stack in user stack traces.")]
         public InternalEventResult<R> InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
