@@ -92,8 +92,12 @@ namespace DNEE
         /// <summary>
         /// Gets the result of the event invocation, if there is one.
         /// </summary>
+        /// <remarks>
+        /// The object returned may be different than the one returned from <see cref="Result"/> if <see cref="IsTyped"/> is set.
+        /// This can happen when this <see cref="EventResult{T}"/> was constructed with an object implementing <see cref="IUsableAs{T}"/>.
+        /// </remarks>
         /// <exception cref="InvalidOperationException">Thrown if <see cref="HasValue"/> is <see langword="false"/>.</exception>
-        public dynamic? DynamicResult => HasValue ? (IsTyped ? typedResult : dynamicResult) : throw new InvalidOperationException();
+        public dynamic? DynamicResult => HasValue ? (IsTyped ? dynamicResult ?? typedResult : dynamicResult) : throw new InvalidOperationException();
 
         internal EventResult(T typedResult)
         {
@@ -108,8 +112,14 @@ namespace DNEE
             if (dynResult is T tval)
             {
                 IsTyped = true;
-                dynamicResult = null;
+                dynamicResult = dynResult;
                 typedResult = tval;
+            }
+            else if (dynResult is IUsableAs<T> usable)
+            {
+                IsTyped = true;
+                dynamicResult = dynResult;
+                typedResult = usable.AsType;
             }
             else
             {

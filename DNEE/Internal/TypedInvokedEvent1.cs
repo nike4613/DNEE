@@ -70,6 +70,15 @@ namespace DNEE.Internal
             return invoker.InvokeContinuationTyped(data, invoker.Origin, this).Unwrap();
         }
 
+        public EventResult Next(IUsableAs<T> data)
+        {
+            if (DidCallNext)
+                throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
+
+            DidCallNext = true;
+            return invoker.InvokeContinuationUsableTyped(data, invoker.Origin, this).Unwrap();
+        }
+
         public EventResult GetEventResult()
             => result.HasValue ? new EventResult((object?)result.Value) : default;
     }

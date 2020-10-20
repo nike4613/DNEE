@@ -60,7 +60,11 @@ namespace DNEE
         /// <summary>
         /// Gets the wrapped data.
         /// </summary>
-        public dynamic? DynamicData => IsTyped ? typedData : dynData;
+        /// <remarks>
+        /// The object returned may be different than the one returned from <see cref="TypedData"/> if <see cref="IsTyped"/> is set.
+        /// This can happen when this <see cref="DataWithOrigin{T}"/> was constructed with an object implementing <see cref="IUsableAs{T}"/>.
+        /// </remarks>
+        public dynamic? DynamicData => IsTyped ? dynData ?? typedData : dynData;
 
         private readonly T typedData;
         /// <summary>
@@ -81,7 +85,13 @@ namespace DNEE
             {
                 IsTyped = true;
                 typedData = tval;
-                dynData = null;
+                dynData = data;
+            }
+            else if (data is IUsableAs<T> usable)
+            {
+                IsTyped = true;
+                typedData = usable.AsType;
+                dynData = data;
             }
             else
             {

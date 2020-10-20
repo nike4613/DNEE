@@ -88,6 +88,16 @@ namespace DNEE
         /// <param name="data">The data to pass to the next handler.</param>
         /// <returns>An <see cref="EventResult"/> wrapping the result of that event handler.</returns>
         EventResult Next(in T data);
+
+        /// <summary>
+        /// Invokes the next event handler for this event with the specified data.
+        /// </summary>
+        /// <remarks>
+        /// If the target handler throws an exception, then this rethrows that exception.
+        /// </remarks>
+        /// <param name="data">The data to pass to the next handler.</param>
+        /// <returns>An <see cref="EventResult"/> wrapping the result of that event handler.</returns>
+        EventResult Next(IUsableAs<T> data);
     }
 
     /// <summary>
@@ -112,5 +122,15 @@ namespace DNEE
         /// <param name="data">The data to pass to the next handler.</param>
         /// <returns>An <see cref="EventResult{T}"/> wrapping the result of that event handler.</returns>
         new EventResult<TRet> Next(in T data);
+
+        /// <summary>
+        /// Invokes the next event handler for this event with the specified data.
+        /// </summary>
+        /// <remarks>
+        /// If the target handler throws an exception, then this rethrows that exception.
+        /// </remarks>
+        /// <param name="data">The data to pass to the next handler.</param>
+        /// <returns>An <see cref="EventResult{T}"/> wrapping the result of that event handler.</returns>
+        new EventResult<TRet> Next(IUsableAs<T> data);
     }
 }

@@ -81,6 +81,37 @@ namespace DNEE.Internal
             return new InternalEventResult<R>(@event.GetEventResult(), caught);
         }
 
+
+        InternalEventResult IHandlerInvoker<T>.InvokeWithUsableData(IUsableAs<T> data, DataOrigin origin, IDataHistoryNode? histNode)
+            => InvokeWithUsableData(data, origin, histNode);
+
+
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types",
+            Justification = "Exceptions are caught and automatically propagated using a custom system that minimizes" +
+                            "our stack in user stack traces.")]
+        public InternalEventResult<R> InvokeWithUsableData(IUsableAs<T> data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        {
+            var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
+
+            ExceptionDispatchInfo? caught = null;
+            try
+            {
+                handler.HandlerFunc.Invoke(@event, Maybe.Some(data.AsType));
+            }
+            catch (Exception e)
+            {
+                caught = ExceptionDispatchInfo.Capture(e);
+            }
+
+            if (@event.AlwaysInvokeNext && !@event.DidCallNext)
+            {
+                var result = InvokeContinuationUsableTyped(data, dataOrigin, histNode);
+                caught = InternalEventResult.CombineExceptions(caught, result.Exception);
+            }
+
+            return new InternalEventResult<R>(@event.GetEventResult(), caught);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal InternalEventResult<R> InvokeContinuationDynamic(dynamic? data, DataOrigin origin, IDataHistoryNode? histNode)
         {
@@ -95,6 +126,21 @@ namespace DNEE.Internal
                 if (typed is IHandlerInvoker<T, R> typed2)
                     return typed2.InvokeWithData(data, origin, histNode);
                 return typed.InvokeWithData(data, origin, histNode);
+            }
+            else
+            {
+                return continuation.InvokeWithData(data, origin, histNode);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal InternalEventResult<R> InvokeContinuationUsableTyped(IUsableAs<T> data, DataOrigin origin, IDataHistoryNode? histNode)
+        {
+            if (continuation is IHandlerInvoker<T> typed)
+            {
+                if (typed is IHandlerInvoker<T, R> typed2)
+                    return typed2.InvokeWithUsableData(data, origin, histNode);
+                return typed.InvokeWithUsableData(data, origin, histNode);
             }
             else
             {

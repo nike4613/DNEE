@@ -2,6 +2,7 @@
 using DNEE.Utility;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DNEE.Internal
@@ -82,6 +83,7 @@ namespace DNEE.Internal
             return invoker.InvokeContinuationDynamic((object?)data, invoker.Origin, this).Unwrap();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         EventResult IEvent<T>.Next(in T data)
             => Next(data);
 
@@ -92,6 +94,20 @@ namespace DNEE.Internal
 
             DidCallNext = true;
             return invoker.InvokeContinuationTyped(data, invoker.Origin, this).Unwrap();
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        EventResult IEvent<T>.Next(IUsableAs<T> data)
+            => Next(data);
+
+        public EventResult<R> Next(IUsableAs<T> data)
+        {
+            if (DidCallNext)
+                throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
+
+            DidCallNext = true;
+            return invoker.InvokeContinuationUsableTyped(data, invoker.Origin, this).Unwrap();
         }
 
         public EventResult<R> GetEventResult()
