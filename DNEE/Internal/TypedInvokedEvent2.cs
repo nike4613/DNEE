@@ -27,6 +27,8 @@ namespace DNEE.Internal
         public bool DidCallNext { get; private set; }
         public bool AlwaysInvokeNext { get; set; } = true;
 
+        dynamic? IEvent.Data => DynamicData;
+
         public dynamic? DynamicData { get; }
 
         private Maybe<dynamic?> result = Maybe.None;
@@ -63,9 +65,19 @@ namespace DNEE.Internal
 
         IEnumerable<DataWithOrigin> IEvent.DataHistory => typedDataHistory;
 
-        public bool IsTyped => DynamicData is T;
+        public bool IsTyped => DynamicData is T || DynamicData is IUsableAs<T>;
 
-        public T Data => (T)(object?)DynamicData!;
+        public T Data
+        {
+            get
+            {
+                if (DynamicData is T tval)
+                    return tval;
+                if (DynamicData is IUsableAs<T> usable)
+                    return usable.AsType;
+                throw new InvalidCastException();
+            }
+        }
 
         public DataOrigin Origin => DataOrigin;
 
@@ -73,6 +85,20 @@ namespace DNEE.Internal
 
         private readonly IDataHistoryNode? nextNode;
         IDataHistoryNode? IDataHistoryNode.Next => nextNode;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        EventResult IEvent.Next()
+            => Next();
+
+        public EventResult<R> Next()
+        {
+            if (DidCallNext)
+                throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
+
+            DidCallNext = true;
+            // we always invoke the dynamic continuation because it makes my life *much* simpler
+            return invoker.InvokeContinuationDynamic((object?)DynamicData, DataOrigin, this).Unwrap();
+        }
 
         public EventResult Next(dynamic? data)
         {

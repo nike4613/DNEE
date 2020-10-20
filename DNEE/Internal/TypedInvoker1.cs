@@ -29,6 +29,8 @@ namespace DNEE.Internal
             var obj = (object?)data;
             if (obj is T tval)
                 return InvokeWithData(tval, dataOrigin, histNode);
+            if (obj is IUsableAs<T> usable)
+                return InvokeWithUsableData(usable, dataOrigin, histNode);
 
             var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, obj, histNode);
 

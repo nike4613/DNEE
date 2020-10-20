@@ -1,4 +1,5 @@
 ﻿using DNEE.Utility;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -23,6 +24,11 @@ namespace DNEE
         dynamic? Result { get; set; }
 
         /// <summary>
+        /// Gets the data passed into this handler invocation.
+        /// </summary>
+        dynamic? Data { get; }
+
+        /// <summary>
         /// Whether or not <see cref="Next(dynamic?)"/> must always be invoked, either by the event
         /// handler, or by the event system.
         /// </summary>
@@ -40,6 +46,15 @@ namespace DNEE
         /// given at the invocation of the event.
         /// </remarks>
         IEnumerable<DataWithOrigin> DataHistory { get; }
+
+        /// <summary>
+        /// Invokes the next event handler for this event using the data given to the current invocation.
+        /// </summary>
+        /// <remarks>
+        /// If the target handler throws an exception, then this rethrows that exception.
+        /// </remarks>
+        /// <returns>An <see cref="EventResult"/> wrapping the result of that event handler.</returns>
+        EventResult Next();
 
         /// <summary>
         /// Invokes the next event handler for this event with the specified data.
@@ -67,6 +82,12 @@ namespace DNEE
         /// this property.
         /// </remarks>
         dynamic? DynamicData { get; }
+
+        /// <summary>
+        /// Gets the data passed into this handler invocation, as <typeparamref name="T"/>.
+        /// </summary>
+        /// <exception cref="InvalidCastException">Thrown if the data could not be reasonably converted to <typeparamref name="T"/>.</exception>
+        new T Data { get; }
 
         /// <summary>
         /// Gets the full history of data passed into all handlers, with the ability to access each entry
@@ -112,6 +133,15 @@ namespace DNEE
         /// Sets the result of this invocation, if any.
         /// </summary>
         new TRet Result { get; set; }
+
+        /// <summary>
+        /// Invokes the next event handler for this event using the data given to the current invocation.
+        /// </summary>
+        /// <remarks>
+        /// If the target handler throws an exception, then this rethrows that exception.
+        /// </remarks>
+        /// <returns>An <see cref="EventResult{T}"/> wrapping the result of that event handler.</returns>
+        new EventResult<TRet> Next();
 
         /// <summary>
         /// Invokes the next event handler for this event with the specified data.

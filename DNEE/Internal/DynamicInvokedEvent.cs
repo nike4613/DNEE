@@ -42,6 +42,15 @@ namespace DNEE.Internal
 
         public IEnumerable<DataWithOrigin> DataHistory { get; }
 
+        public EventResult Next()
+        {
+            if (DidCallNext)
+                throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
+
+            DidCallNext = true;
+            return invoker.InvokeContinuation((object?)Data, DataOrigin, this).Unwrap();
+        }
+
         public EventResult Next(dynamic? data)
         {
             if (DidCallNext)
