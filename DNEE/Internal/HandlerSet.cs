@@ -29,13 +29,25 @@ namespace DNEE.Internal
 
         public HandlerSet Copy() => new HandlerSet(this);
 
-        // TODO: improve these by implementing custom insertion logic to always insert/remove in the right place
         public void Add(IHandler handler)
         {
             if (handlers.Contains(handler)) return;
 
-            handlers.Add(handler);
-            handlers.Sort(HandlerComparer.Instance);
+            bool inserted = false;
+
+            for (int i = handlers.Count - 1; i >= 0; i--)
+            {
+                if (handlers[i].Priority <= handler.Priority)
+                {
+                    handlers.Insert(i + 1, handler);
+                    inserted = true;
+                    break;
+                }
+            }
+
+            if (!inserted)
+                handlers.Insert(0, handler);
+
             Invoker = BuildChain(Handlers);
         }
 
@@ -43,7 +55,8 @@ namespace DNEE.Internal
         {
             if (handlers.Remove(handler))
             {
-                handlers.Sort(HandlerComparer.Instance);
+                // A removal shouldn't need a resort
+                //handlers.Sort(HandlerComparer.Instance);
                 Invoker = BuildChain(Handlers);
             }
         }
