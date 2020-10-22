@@ -33,7 +33,7 @@ namespace DNEE
         private event Action UnsubEvent;
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types", 
-            Justification = "The caught exceptions arre aggregated and rethrown later.")]
+            Justification = "The caught exceptions are aggregated and rethrown later.")]
         internal void InvokeUnsubEvents()
         {
             var exceptions = new List<Exception>();
@@ -61,7 +61,7 @@ namespace DNEE
         /// <summary>
         /// Registers an event handler to be invoked whenever this <see cref="EventHandle"/> is unsubscribed (if it is).
         /// </summary>
-        /// <param name="action">The <see cref="Action"/> to call on unsubscription</param>
+        /// <param name="action">The <see cref="Action"/> to call on unsubscription.</param>
         /// <returns><see langword="this"/>, for easy chaining.</returns>
         public EventHandle OnUnsubscribe(Action action)
         {
@@ -75,7 +75,7 @@ namespace DNEE
         /// </summary>
         public void Dispose()
         {
-            EventManager.UnsubscribeInternal(this);
+            if (IsValid) EventManager.UnsubscribeInternal(this);
         }
 
         /// <inheritdoc/>
