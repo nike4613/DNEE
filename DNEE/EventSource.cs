@@ -176,7 +176,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.DynamicSendInternal(this, @event, (object?)data).Unwrap();
+                return EventManager.DynamicSendInternal(this, @event, (object?)data, null).Unwrap();
             }
             catch (Exception e)
             {
@@ -200,7 +200,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.TypedSendInternal(this, @event, data).Unwrap();
+                return EventManager.TypedSendInternal(this, @event, data, null).Unwrap();
             }
             catch (Exception e)
             {
@@ -225,7 +225,119 @@ namespace DNEE
 
             try
             {
-                return EventManager.TypedSendInternal<T, TRet>(this, @event, data).Unwrap();
+                return EventManager.TypedSendInternal<T, TRet>(this, @event, data, null).Unwrap();
+            }
+            catch (Exception e)
+            {
+                throw new HandlerInvocationException(string.Format(SR.Culture, SR.ErrorInvokingEvents, @event), e);
+            }
+        }
+
+        private static IDataHistoryNode? HistoryNodeForEvent(IEvent parent)
+        {
+            IEvent? lastParent = null;
+            while (parent is IEventWrapper wrapper && !ReferenceEquals(lastParent, parent))
+            {
+                lastParent = parent;
+                parent = wrapper.BaseEvent;
+            }
+
+            return parent as IDataHistoryNode;
+        }
+
+        /// <summary>
+        /// Invokes the handlers for the event identified by <paramref name="event"/> with <paramref name="data"/> as their argument.
+        /// </summary>
+        /// <remarks>
+        /// The data history of <paramref name="parent"/> will be included in the history of the new event invocation.
+        /// </remarks>
+        /// <param name="event">The event to invoke.</param>
+        /// <param name="data">The data to pass to the handlers.</param>
+        /// <param name="parent">The event which is the parent of the new invocation.</param>
+        /// <returns>An <see cref="EventResult"/> representing the result of the invocations.</returns>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
+        /// <exception cref="HandlerInvocationException">Thrown if the event handlers throw. <see cref="Exception.InnerException"/> 
+        /// contains the thrown exception.</exception>
+        public EventResult SendEventDynamic(in EventName @event, dynamic? data, IEvent parent)
+        {
+            if (!@event.IsValid)
+                throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
+
+            if (parent is null)
+                throw new ArgumentNullException(nameof(parent));
+
+            var node = HistoryNodeForEvent(parent);
+
+            try
+            {
+                return EventManager.DynamicSendInternal(this, @event, (object?)data, node).Unwrap();
+            }
+            catch (Exception e)
+            {
+                throw new HandlerInvocationException(string.Format(SR.Culture, SR.ErrorInvokingEvents, @event), e);
+            }
+        }
+
+        /// <summary>
+        /// Invokes the handlers for the event identified by <paramref name="event"/> with <paramref name="data"/> as their argument.
+        /// </summary>
+        /// <remarks>
+        /// The data history of <paramref name="parent"/> will be included in the history of the new event invocation.
+        /// </remarks>
+        /// <typeparam name="T">The type of the data to pass to the handlers.</typeparam>
+        /// <param name="event">The event to invoke.</param>
+        /// <param name="data">The data to pass to the handlers.</param>
+        /// <param name="parent">The event which is the parent of the new invocation.</param>
+        /// <returns>An <see cref="EventResult"/> representing the result of the invocations.</returns>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
+        /// <exception cref="HandlerInvocationException">Thrown if the event handlers throw. <see cref="Exception.InnerException"/> contains the thrown exception.</exception>
+        public EventResult SendEvent<T>(in EventName @event, in T data, IEvent parent)
+        {
+            if (!@event.IsValid)
+                throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
+
+            if (parent is null)
+                throw new ArgumentNullException(nameof(parent));
+
+            var node = HistoryNodeForEvent(parent);
+
+            try
+            {
+                return EventManager.TypedSendInternal(this, @event, data, node).Unwrap();
+            }
+            catch (Exception e)
+            {
+                throw new HandlerInvocationException(string.Format(SR.Culture, SR.ErrorInvokingEvents, @event), e);
+            }
+        }
+
+        /// <summary>
+        /// Invokes the handlers for the event identified by <paramref name="event"/> with <paramref name="data"/> as their argument.
+        /// </summary>
+        /// <remarks>
+        /// The data history of <paramref name="parent"/> will be included in the history of the new event invocation.
+        /// </remarks>
+        /// <typeparam name="T">The type of the data to pass to the handlers.</typeparam>
+        /// <typeparam name="TRet">The type that the event is expected to return.</typeparam>
+        /// <param name="event">The event to invoke.</param>
+        /// <param name="data">The data to pass to the handlers.</param>
+        /// <param name="parent">The event which is the parent of the new invocation.</param>
+        /// <returns>An <see cref="EventResult{T}"/> representing the result of the invocations.</returns>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
+        /// <exception cref="HandlerInvocationException">Thrown if the event handlers throw. <see cref="Exception.InnerException"/> contains the thrown exception.</exception>
+        public EventResult<TRet> SendEvent<T, TRet>(in EventName @event, in T data, IEvent parent)
+        {
+            if (!@event.IsValid)
+                throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
+
+            if (parent is null)
+                throw new ArgumentNullException(nameof(parent));
+
+            var node = HistoryNodeForEvent(parent);
+
+            try
+            {
+                return EventManager.TypedSendInternal<T, TRet>(this, @event, data, node).Unwrap();
             }
             catch (Exception e)
             {

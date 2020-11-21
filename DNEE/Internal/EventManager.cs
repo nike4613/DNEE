@@ -80,27 +80,27 @@ namespace DNEE.Internal
         #endregion
 
         #region Send
-        internal static InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data)
+        internal static InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data, IDataHistoryNode? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
 
-            return cell.Handlers.Invoker.InvokeWithData((object?)data, source.Origin, null);
+            return cell.Handlers.Invoker.InvokeWithData((object?)data, source.Origin, dataHistory);
         }
 
-        internal static InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data)
+        internal static InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
 
             var invoker = cell.Handlers.Invoker;
             if (invoker is IHandlerInvoker<T> typed)
-                return typed.InvokeWithData(data, source.Origin, null);
+                return typed.InvokeWithData(data, source.Origin, dataHistory);
 
-            return invoker.InvokeWithData(data, source.Origin, null);
+            return invoker.InvokeWithData(data, source.Origin, dataHistory);
         }
 
-        internal static InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data)
+        internal static InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var cell))
                 return default; // there are no handlers for the event
@@ -109,11 +109,11 @@ namespace DNEE.Internal
             if (invoker is IHandlerInvoker<T> typed)
             {
                 if (typed is IHandlerInvoker<T, R> typed2)
-                    return typed2.InvokeWithData(data, source.Origin, null);
-                return typed.InvokeWithData(data, source.Origin, null);
+                    return typed2.InvokeWithData(data, source.Origin, dataHistory);
+                return typed.InvokeWithData(data, source.Origin, dataHistory);
             }
 
-            return invoker.InvokeWithData(data, source.Origin, null);
+            return invoker.InvokeWithData(data, source.Origin, dataHistory);
         }
         #endregion
     }

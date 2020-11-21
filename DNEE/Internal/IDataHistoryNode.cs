@@ -8,6 +8,7 @@ namespace DNEE.Internal
     {
         DataOrigin Origin { get; }
         dynamic? Data { get; }
+        EventName EventName { get; }
 
         IDataHistoryNode? Next { get; }
     }

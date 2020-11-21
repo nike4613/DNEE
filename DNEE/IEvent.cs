@@ -43,7 +43,7 @@ namespace DNEE
         /// <remarks>
         /// The first element of this <see cref="IEnumerable{T}"/> will always be the current invocation.
         /// The following elements will walk up the invocation stack, with the last element being the value
-        /// given at the invocation of the event.
+        /// given at the original invocation of the event.
         /// </remarks>
         IEnumerable<DataWithOrigin> DataHistory { get; }
 
@@ -96,7 +96,7 @@ namespace DNEE
         /// <remarks>
         /// The first element of this <see cref="IEnumerable{T}"/> will always be the current invocation.
         /// The following elements will walk up the invocation stack, with the last element being the value
-        /// given at the invocation of the event.
+        /// given at the original invocation of the event.
         /// </remarks>
         new IEnumerable<DataWithOrigin<T>> DataHistory { get; }
 

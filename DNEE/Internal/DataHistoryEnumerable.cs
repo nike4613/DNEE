@@ -27,7 +27,7 @@ namespace DNEE.Internal
             internal Enumerator(DataHistoryEnumerable enumerable)
                 => node = start = enumerable.first;
 
-            public DataWithOrigin Current => node != null ? new DataWithOrigin(node.Origin, (object?)node.Data) : default;
+            public DataWithOrigin Current => node != null ? new DataWithOrigin(node.Origin, (object?)node.Data, node.EventName) : default;
 
             object IEnumerator.Current => Current;
 
@@ -88,14 +88,14 @@ namespace DNEE.Internal
                 {
                     if (node == null) return default;
                     if (node is IDataHistoryNode<T> typed && typed.IsTyped)
-                        return new DataWithOrigin<T>(typed.Origin, typed.Data);
-                    return new DataWithOrigin<T>(node.Origin, (object?)node.Data);
+                        return new DataWithOrigin<T>(typed.Origin, typed.Data, node.EventName);
+                    return new DataWithOrigin<T>(node.Origin, (object?)node.Data, node.EventName);
                 }
             }
 
             object IEnumerator.Current => Current;
 
-            DataWithOrigin IEnumerator<DataWithOrigin>.Current => node != null ? new DataWithOrigin(node.Origin, (object?)node.Data) : default;
+            DataWithOrigin IEnumerator<DataWithOrigin>.Current => node != null ? new DataWithOrigin(node.Origin, (object?)node.Data, node.EventName) : default;
 
             public bool MoveNext()
             {
