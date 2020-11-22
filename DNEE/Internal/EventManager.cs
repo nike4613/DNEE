@@ -24,8 +24,7 @@ namespace DNEE.Internal
             do
             {
                 orig2 = original;
-                handlers = original.Copy();
-                handlers.Add(handler);
+                handlers = original.Add(handler);
                 original = Interlocked.CompareExchange(ref cell.Handlers, handlers, orig2);
             }
             while (original != orig2);
@@ -42,8 +41,7 @@ namespace DNEE.Internal
             do
             {
                 orig2 = original;
-                handlers = original.Copy();
-                handlers.Remove(handler);
+                handlers = original.Remove(handler);
                 original = Interlocked.CompareExchange(ref cell.Handlers, handlers, orig2);
             }
             while (original != orig2);

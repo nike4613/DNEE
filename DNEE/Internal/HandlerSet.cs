@@ -1,64 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
 namespace DNEE.Internal
 {
+    [DebuggerDisplay("Count = {ownHandlers.Count}")]
     internal class HandlerSet
     {
         public static readonly HandlerSet Empty = new();
 
-        private readonly List<IHandler> handlers;
+        // in an ideal world this would be an ImmutableArray or ImmutableList, but that requires another dep
+        private readonly List<IHandler> ownHandlers;
 
-        public IReadOnlyCollection<IHandler> Handlers => handlers;
+        public IHandlerInvoker Invoker { get; }
 
-        public IHandlerInvoker Invoker { get; private set; }
-
-        private HandlerSet()
+        private HandlerSet() : this(new(), EmptyHandlerInvoker.Invoker)
         {
-            handlers = new ();
-            Invoker = EmptyHandlerInvoker.Invoker;
         }
 
-        private HandlerSet(HandlerSet copyFrom)
-        {
-            handlers = new (copyFrom.Handlers);
-            Invoker = copyFrom.Invoker;
-        }
+        private HandlerSet(List<IHandler> handlers, IHandlerInvoker invoker)
+            => (ownHandlers, Invoker) = (handlers, invoker);
 
-        public HandlerSet Copy() => new HandlerSet(this);
-
-        public void Add(IHandler handler)
+        public HandlerSet Add(IHandler handler)
         {
-            if (handlers.Contains(handler)) return;
+            if (ownHandlers.Contains(handler)) return this;
+
+            var newList = new List<IHandler>(ownHandlers);
 
             bool inserted = false;
 
-            for (int i = handlers.Count - 1; i >= 0; i--)
+            for (int i = newList.Count - 1; i >= 0; i--)
             {
-                if (handlers[i].Priority <= handler.Priority)
+                if (newList[i].Priority <= handler.Priority)
                 {
-                    handlers.Insert(i + 1, handler);
+                    newList.Insert(i + 1, handler);
                     inserted = true;
                     break;
                 }
             }
 
             if (!inserted)
-                handlers.Insert(0, handler);
+                newList.Insert(0, handler);
 
-            Invoker = BuildChain(Handlers);
+            var newInvoker = BuildChain(newList);
+
+            return new HandlerSet(newList, newInvoker);
         }
 
-        public void Remove(IHandler handler)
+        public HandlerSet Remove(IHandler handler)
         {
-            if (handlers.Remove(handler))
-            {
-                // A removal shouldn't need a resort
-                //handlers.Sort(HandlerComparer.Instance);
-                Invoker = BuildChain(Handlers);
-            }
+            if (!ownHandlers.Contains(handler)) return this;
+
+            var newList = new List<IHandler>(ownHandlers.Where(h => h != handler));
+
+            var newInvoker = BuildChain(newList);
+
+            return new HandlerSet(newList, newInvoker);
         }
 
         private static IHandlerInvoker BuildChain(IReadOnlyCollection<IHandler> handlers)
