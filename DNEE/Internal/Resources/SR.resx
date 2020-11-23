@@ -133,6 +133,9 @@
   <data name="EventName_OriginNotValid" xml:space="preserve">
     <value>The provided origin is not valid!</value>
   </data>
+  <data name="EventSource_CannotChangeInheritanceOfEvent" xml:space="preserve">
+    <value>Cannot change the inheritance settings of an event from another origin!</value>
+  </data>
   <data name="EventSource_HandleNotFromThisSource" xml:space="preserve">
     <value>The provided EventHandle was not created by this EventSource.</value>
   </data>

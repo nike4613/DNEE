@@ -160,6 +160,28 @@ namespace DNEE
             EventManager.UnsubscribeInternal(handle);
         }
 
+        public void SetBase(in EventName derived, in EventName @base)
+        {
+            if (!derived.IsValid)
+                throw new ArgumentException(SR.EventNameInvalid, nameof(derived));
+            if (!@base.IsValid)
+                throw new ArgumentException(SR.EventNameInvalid, nameof(@base));
+            if (Origin != derived.Origin)
+                throw new ArgumentException(SR.EventSource_CannotChangeInheritanceOfEvent, nameof(derived));
+
+            EventManager.SetBaseInternal(this, derived, @base);
+        }
+
+        public void RemoveBase(in EventName derived)
+        {
+            if (!derived.IsValid)
+                throw new ArgumentException(SR.EventNameInvalid, nameof(derived));
+            if (Origin != derived.Origin)
+                throw new ArgumentException(SR.EventSource_CannotChangeInheritanceOfEvent, nameof(derived));
+
+            EventManager.RemoveBaseInternal(this, derived);
+        }
+
         /// <summary>
         /// Invokes the handlers for the event identified by <paramref name="event"/> with <paramref name="data"/> as their argument.
         /// </summary>

@@ -104,6 +104,21 @@ namespace _EventSystemTest
             Console.WriteLine();
             source.SendEventDynamic(ev2, ev1);
 
+            Console.WriteLine();
+
+            source.SetBase(ev2, ev1);
+
+            Console.WriteLine();
+            try 
+            { 
+                source.SendEventDynamic(ev2, ev2);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            Console.WriteLine();
+
             source.Unsubscribe(h1);
             source.Unsubscribe(h2);
         }

@@ -16,15 +16,15 @@ namespace DNEE
         /// <summary>
         /// Gets whether or not this handle is valid.
         /// </summary>
-        public bool IsValid => Cell != null && Handler != null && Origin != null;
+        public bool IsValid => Handler != null && Origin != null;
 
+        internal readonly EventName Event;
         internal readonly DataOrigin Origin;
-        internal readonly EventManager.HandlerSetCell Cell;
         internal readonly IHandler Handler;
 
-        internal EventHandle(EventManager.HandlerSetCell cell, IHandler handler, DataOrigin origin)
+        internal EventHandle(EventName name, IHandler handler, DataOrigin origin)
         {
-            Cell = cell;
+            Event = name;
             Handler = handler;
             Origin = origin;
             UnsubEvent = () => { };
@@ -84,7 +84,7 @@ namespace DNEE
 
         /// <inheritdoc/>
         public bool Equals(EventHandle other)
-            => Origin == other.Origin && Cell == other.Cell && Handler == other.Handler && UnsubEvent == other.UnsubEvent;
+            => Origin == other.Origin && Handler == other.Handler && UnsubEvent == other.UnsubEvent;
 
         /// <inheritdoc/>
         public override int GetHashCode()
@@ -92,7 +92,6 @@ namespace DNEE
             int hashCode = -1433727288;
             hashCode = hashCode * -1521134295 + IsValid.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<DataOrigin>.Default.GetHashCode(Origin);
-            hashCode = hashCode * -1521134295 + EqualityComparer<EventManager.HandlerSetCell>.Default.GetHashCode(Cell);
             hashCode = hashCode * -1521134295 + EqualityComparer<IHandler>.Default.GetHashCode(Handler);
             return hashCode;
         }

@@ -106,6 +106,15 @@ namespace DNEE.Internal.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot change the inheritance settings of an event from another origin!.
+        /// </summary>
+        internal static string EventSource_CannotChangeInheritanceOfEvent {
+            get {
+                return ResourceManager.GetString("EventSource_CannotChangeInheritanceOfEvent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The provided EventHandle was not created by this EventSource..
         /// </summary>
         internal static string EventSource_HandleNotFromThisSource {
