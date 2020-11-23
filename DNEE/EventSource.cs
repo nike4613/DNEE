@@ -160,6 +160,16 @@ namespace DNEE
             EventManager.UnsubscribeInternal(handle);
         }
 
+        /// <summary>
+        /// Sets the base of the event identified by <paramref name="derived"/> to the event identified by <paramref name="base"/>.
+        /// </summary>
+        /// <remarks>
+        /// When an event has a base, all of the base's handlers are invoked when the derived event is invoked.
+        /// </remarks>
+        /// <param name="derived">The event to set the base of.</param>
+        /// <param name="base">The event that will be the base.</param>
+        /// <exception cref="ArgumentException">Thrown if either <paramref name="derived"/> or <paramref name="base"/> is invalid
+        /// -OR- if <paramref name="derived"/> has an origin that does not correspond to this event source.</exception>
         public void SetBase(in EventName derived, in EventName @base)
         {
             if (!derived.IsValid)
@@ -172,6 +182,12 @@ namespace DNEE
             EventManager.SetBaseInternal(this, derived, @base);
         }
 
+        /// <summary>
+        /// Removes a previously set base for the event identified by <paramref name="derived"/>.
+        /// </summary>
+        /// <param name="derived">The event to remove the base from.</param>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="derived"/> is invalid
+        /// -OR- if <paramref name="derived"/> has an origin that does not correspond to this event source.</exception>
         public void RemoveBase(in EventName derived)
         {
             if (!derived.IsValid)
