@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 
 namespace DNEE
 {
@@ -84,8 +85,9 @@ namespace DNEE
             if (origin.IsValid)
                 throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
 
-            typeConverters = converters is null ? new() : new(converters.Select(k => new KeyValuePair<ITypeConverter, byte>(k, 0)));
-            TypeConverters = new LazyEnumerable<ITypeConverter>(() => typeConverters.Keys);
+            // the extra variable is so that the lambda below doesn't capture the source, but just the dictionary
+            var tyConvs = typeConverters = converters is null ? new() : new(converters.Select(k => new KeyValuePair<ITypeConverter, byte>(k, 0)));
+            TypeConverters = new LazyEnumerable<ITypeConverter>(() => tyConvs.Keys);
 
             originAssocObj = new();
             Origin = origin;
@@ -95,6 +97,13 @@ namespace DNEE
                 throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
         }
 
+        /// <summary>
+        /// Adds a type converter to this <see cref="EventSource"/>'s collection, available in <see cref="TypeConverters"/>.
+        /// </summary>
+        /// <remarks>
+        /// Changes to this collection will affect <i>all</i> event handlers subscribed through this <see cref="EventSource"/>.
+        /// </remarks>
+        /// <param name="converter">The converter to add.</param>
         public void AddConverter(ITypeConverter converter)
         {
             if (converter is null)
@@ -103,6 +112,10 @@ namespace DNEE
             typeConverters.TryAdd(converter, 0);
         }
 
+        /// <summary>
+        /// Removes a type converter from this <see cref="EventSource"/>'s collection, available in <see cref="TypeConverters"/>.
+        /// </summary>
+        /// <param name="converter">The converter to remove.</param>
         public bool RemoveConverter(ITypeConverter converter)
         {
             if (converter is null)

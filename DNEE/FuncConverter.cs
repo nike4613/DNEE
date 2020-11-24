@@ -3,10 +3,20 @@ using System.Runtime.CompilerServices;
 
 namespace DNEE
 {
+    /// <summary>
+    /// An <see cref="ITypeConverter"/> which converts from one type to another using a provided delegate, 
+    /// accepting any parameter of type <typeparamref name="TIn"/>.
+    /// </summary>
+    /// <typeparam name="TIn">The type that can be converted from.</typeparam>
+    /// <typeparam name="TOut">The type that can be converted to.</typeparam>
     public sealed class FuncConverter<TIn, TOut> : TypeConverter<TOut>, FuncConverter<TIn, TOut>.INormalize<TIn>
     {
         private readonly Func<TIn, TOut> converter;
 
+        /// <summary>
+        /// Constructs a <see cref="FuncConverter{TIn, TOut}"/> with the specified conversion function.
+        /// </summary>
+        /// <param name="convert">The function that this instance will use to convert objects.</param>
         public FuncConverter(Func<TIn, TOut> convert)
         {
             if (convert is null)
@@ -41,14 +51,13 @@ namespace DNEE
             TIn INormalize<T>.Normalize(T from) => throw new InvalidCastException();
         }
 
-        // if the source type is a reference type, i always want to just cast fo object then to my target type
-        // if the source type is a value type, i want to do exactly what i have now
-
         TIn INormalize<TIn>.Normalize(TIn from) => from;
 
+        /// <inheritdoc/>
         public override bool CanConvert<TFrom>(TFrom from)
             => from is TIn;
 
+        /// <inheritdoc/>
         public override TOut ConvertTo<TFrom>(TFrom from)
             => converter(new Norm<TFrom>(this).Converter.Normalize(from));
     }
