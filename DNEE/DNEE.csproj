@@ -11,13 +11,20 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <Version>1.0.0-beta.7</Version>
+    <Version>1.0.0-beta.8</Version>
     <Authors>DaNike</Authors>
     <Product>DaNike's Extensible Events</Product>
     <Description>A powerful, extensible, composition-based event framework.</Description>
     <Copyright>2020 Anairkoen Schno</Copyright>
     <PackageProjectUrl>https://github.com/nike4613/DNEE</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nike4613/DNEE</RepositoryUrl>
+
+    <Changelog>
+      <![CDATA[
+        - Events can now derive from each other
+        - EventSources can now define a set of ITypeConverters that can try to satisfy the needs of a handler by transforming the data
+      ]]>
+    </Changelog>
   </PropertyGroup>
   
   <ItemGroup>
