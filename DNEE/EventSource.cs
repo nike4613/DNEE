@@ -1,7 +1,10 @@
 ﻿using DNEE.Internal;
 using DNEE.Internal.Resources;
+using DNEE.Utility;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -22,6 +25,15 @@ namespace DNEE
         /// </summary>
         public DataOrigin Origin { get; }
         private readonly object originAssocObj;
+
+        // this is the best I can do for a ConcurrentSet
+        private readonly ConcurrentDictionary<ITypeConverter, byte> typeConverters;
+
+        /// <summary>
+        /// Gets the set of <see cref="ITypeConverter"/>s that currently affect handlers subscribed through this
+        /// <see cref="EventSource"/>.
+        /// </summary>
+        public IEnumerable<ITypeConverter> TypeConverters { get; }
 
         /// <summary>
         /// Creates a new <see cref="EventSource"/> with its own <see cref="DataOrigin"/> named <paramref name="name"/>.
@@ -52,12 +64,28 @@ namespace DNEE
         /// <param name="origin">The origin to use for this <see cref="EventSource"/>.</param>
         /// <exception cref="ArgumentException">Thrown if <paramref name="origin"/> is already associated with another <see cref="EventSource"/>.</exception>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="origin"/> is <see langword="null"/>.</exception>
-        public EventSource(DataOrigin origin)
+        public EventSource(DataOrigin origin) : this(origin, null)
+        {
+        }
+
+
+        /// <summary>
+        /// Creates a new <see cref="EventSource"/> using the <see cref="DataOrigin"/> <paramref name="origin"/>.
+        /// This origin cannot be associated with any other <see cref="EventSource"/>.
+        /// </summary>
+        /// <param name="origin">The origin to use for this <see cref="EventSource"/>.</param>
+        /// <param name="converters">The set of converters to initialize this <see cref="EventSource"/> with.</param>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="origin"/> is already associated with another <see cref="EventSource"/>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="origin"/> is <see langword="null"/>.</exception>
+        public EventSource(DataOrigin origin, IEnumerable<ITypeConverter>? converters)
         {
             if (origin is null)
                 throw new ArgumentNullException(nameof(origin));
             if (origin.IsValid)
                 throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
+
+            typeConverters = converters is null ? new() : new(converters.Select(k => new KeyValuePair<ITypeConverter, byte>(k, 0)));
+            TypeConverters = new LazyEnumerable<ITypeConverter>(() => typeConverters.Keys);
 
             originAssocObj = new();
             Origin = origin;
@@ -65,6 +93,22 @@ namespace DNEE
 
             if (!origin.IsValid)
                 throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
+        }
+
+        public void AddConverter(ITypeConverter converter)
+        {
+            if (converter is null)
+                throw new ArgumentNullException(nameof(converter));
+
+            typeConverters.TryAdd(converter, 0);
+        }
+
+        public bool RemoveConverter(ITypeConverter converter)
+        {
+            if (converter is null)
+                throw new ArgumentNullException(nameof(converter));
+
+            return typeConverters.TryRemove(converter, out _);
         }
 
         /// <summary>

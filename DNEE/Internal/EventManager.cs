@@ -58,12 +58,12 @@ namespace DNEE.Internal
 
         internal static EventHandle SubscribeInternal<T>(EventSource source, in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new TypedHandler1<T>(source.Origin, @event, handler, priority));
+            return AtomicAddHandler(source, @event, new TypedHandler1<T>(source.Origin, @event, handler, priority, source.TypeConverters));
         }
 
         internal static EventHandle SubscribeInternal<T, R>(EventSource source, in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new TypedHandler2<T, R>(source.Origin, @event, handler, priority));
+            return AtomicAddHandler(source, @event, new TypedHandler2<T, R>(source.Origin, @event, handler, priority, source.TypeConverters));
         }
 
         internal static void UnsubscribeInternal(in EventHandle handle)

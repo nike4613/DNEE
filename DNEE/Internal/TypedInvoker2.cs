@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Text;
@@ -31,6 +32,10 @@ namespace DNEE.Internal
                 return InvokeWithData(tval, dataOrigin, histNode);
             if (obj is IUsableAs<T> usable)
                 return InvokeWithUsableData(usable, dataOrigin, histNode);
+
+            var converter = handler.Converters.FirstOrDefault(c => c.CanConvertTo<T, object?>((object?)data));
+            if (converter != null)
+                return InvokeWithData(converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
 
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, obj, histNode);
 

@@ -58,7 +58,7 @@ namespace _EventSystemTest
 
             using var h7 = source.SubscribeTo<EventName>(ev1, (@event, data) =>
             {
-                if (data.HasValue)
+               if (data.HasValue)
                     Console.WriteLine($"(h7) Data found of type EventName: {data.Value}");
                 else
                     Console.WriteLine($"(h7) Data of unknown type: {@event.DynamicData}");
@@ -117,6 +117,30 @@ namespace _EventSystemTest
             {
                 Console.WriteLine(e);
             }
+            Console.WriteLine();
+            Console.WriteLine();
+
+            var ev3 = source.Event("Event3");
+
+            using var h10 = source.SubscribeTo<int>(ev3, (@event, data) =>
+            {
+                if (data.HasValue)
+                    Console.WriteLine($"(h10) Data is an int ({data.Value})");
+                else
+                    Console.WriteLine("(h10) Data is not an int");
+            }, (HandlerPriority)100);
+
+            source.SendEvent(ev3, ev1);
+            source.SendEvent(ev3, 5);
+
+            Console.WriteLine();
+
+            source.AddConverter(new FuncConverter<EventName, int>(e => e.ToString().Length));
+
+            source.SendEvent(ev3, ev1);
+            source.SendEvent(ev3, 5);
+
+            Console.WriteLine();
             Console.WriteLine();
 
             source.Unsubscribe(h1);
