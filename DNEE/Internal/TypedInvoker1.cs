@@ -32,7 +32,7 @@ namespace DNEE.Internal
             // TODO: should this actually call some other invoke that correctly passes on the original data when its continued automatically?
             var converter = handler.Converters.FirstOrDefault(c => c.CanConvertTo<T, object?>((object?)data));
             if (converter != null)
-                return InvokeWithData(converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
+                return InvokeWithRelatedData((object?)data, converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
 
             var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, obj, histNode);
 
@@ -78,7 +78,7 @@ namespace DNEE.Internal
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        public InternalEventResult InvokeWithRelatedData(object data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
 
             var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, data, histNode);
@@ -118,7 +118,7 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult InvokeContinuationRelatedTyped(object data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        internal InternalEventResult InvokeContinuationRelatedTyped(object? data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
         {
             if (continuation is IHandlerInvoker<T> typed)
                 return typed.InvokeWithRelatedData(data, inputData, origin, histNode);

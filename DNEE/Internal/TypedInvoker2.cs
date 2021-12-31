@@ -31,7 +31,7 @@ namespace DNEE.Internal
 
             var converter = handler.Converters.FirstOrDefault(c => c.CanConvertTo<T, object?>((object?)data));
             if (converter != null)
-                return InvokeWithData(converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
+                return InvokeWithRelatedData((object?)data, converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
 
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, obj, histNode);
 
@@ -82,11 +82,10 @@ namespace DNEE.Internal
         }
 
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
             => InvokeWithRelatedData(data, inputData, origin, histNode);
 
-
-        public InternalEventResult<R> InvokeWithRelatedData(object data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
 
@@ -131,7 +130,7 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult<R> InvokeContinuationRelatedTyped(object data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        internal InternalEventResult<R> InvokeContinuationRelatedTyped(object? data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
         {
             if (continuation is IHandlerInvoker<T> typed)
             {
