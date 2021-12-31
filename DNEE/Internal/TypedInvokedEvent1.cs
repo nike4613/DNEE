@@ -46,6 +46,8 @@ namespace DNEE.Internal
                     return tval;
                 if (DynamicData is IUsableAs<T> usable)
                     return usable.AsType;
+                if (DynamicData is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var val))
+                    return val;
                 throw new InvalidCastException();
             }
         }
@@ -97,7 +99,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationUsableTyped(data, invoker.Origin, this).Unwrap();
+            return invoker.InvokeContinuationRelatedTyped(data, data.AsType, invoker.Origin, this).Unwrap();
         }
 
         public EventResult GetEventResult()

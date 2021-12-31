@@ -133,7 +133,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationUsableTyped(data, invoker.Origin, this).Unwrap();
+            return invoker.InvokeContinuationRelatedTyped(data, data.AsType, invoker.Origin, this).Unwrap();
         }
 
         public EventResult<R> GetEventResult()
