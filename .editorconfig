@@ -2,4 +2,7 @@
 
 # CA1716: Identifiers should not match keywords
 dotnet_diagnostic.CA1716.severity = none
+csharp_style_expression_bodied_methods=true:silent
+csharp_style_expression_bodied_constructors=true:silent
+csharp_style_expression_bodied_operators=true:silent
 # lmao noone uses VB seriously

@@ -6,9 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
 
 namespace DNEE
 {
@@ -128,7 +125,7 @@ namespace DNEE
         /// Creates an <see cref="EventName"/> using <paramref name="name"/> in this object's <see cref="Origin"/>.
         /// </summary>
         /// <remarks>
-        /// Equivalent to <c><see langword="new"/> <see cref="EventName"/>(source.Origin, <paramref name="name"/>)</c>.
+        /// Equivalent to <c><see langword="new"/> <see cref="EventName"/>(<see cref="Origin"/>, <paramref name="name"/>)</c>.
         /// </remarks>
         /// <param name="name">The name of the event.</param>
         /// <returns>An <see cref="EventName"/> represending an event that can be subscribed to and invoked.</returns>

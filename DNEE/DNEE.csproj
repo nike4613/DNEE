@@ -29,10 +29,6 @@
       ]]>
     </Changelog>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="IsExternalInit" Version="1.0.2">

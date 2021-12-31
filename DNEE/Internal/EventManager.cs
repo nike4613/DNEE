@@ -1,11 +1,8 @@
-﻿using DNEE.Internal;
-using DNEE.Internal.Resources;
+﻿using DNEE.Internal.Resources;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace DNEE.Internal
 {

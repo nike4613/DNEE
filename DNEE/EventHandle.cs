@@ -2,9 +2,7 @@
 using DNEE.Internal.Resources;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace DNEE
 {
@@ -32,8 +30,6 @@ namespace DNEE
 
         private event Action UnsubEvent;
 
-        [SuppressMessage("Design", "CA1031:Do not catch general exception types", 
-            Justification = "The caught exceptions are aggregated and rethrown later.")]
         internal void InvokeUnsubEvents()
         {
             var exceptions = new List<Exception>();
