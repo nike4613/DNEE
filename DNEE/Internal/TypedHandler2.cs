@@ -8,15 +8,13 @@ namespace DNEE.Internal
         public ReturnEventHandler<T, R> HandlerFunc { get; }
         public HandlerPriority Priority { get; }
         public DataOrigin Origin { get; }
-        public IEnumerable<ITypeConverter> Converters { get; }
 
-        public TypedHandler2(DataOrigin origin, in EventName name, ReturnEventHandler<T, R> func, HandlerPriority priority, IEnumerable<ITypeConverter> converters)
+        public TypedHandler2(DataOrigin origin, in EventName name, ReturnEventHandler<T, R> func, HandlerPriority priority)
         {
             Origin = origin;
             Event = name;
             HandlerFunc = func;
             Priority = priority;
-            Converters = converters;
         }
 
         public IHandlerInvoker CreateInvokerWithContinuation(IHandlerInvoker continueWith)

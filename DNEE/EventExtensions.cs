@@ -8,7 +8,7 @@ namespace DNEE
     /// <summary>
     /// A static class with helper functions to make some parts of writing event handlers easier.
     /// </summary>
-    public static class EventSystem
+    public static class EventExtensions
     {
         /// <summary>
         /// Invokes <see cref="IEvent.Next(dynamic?)"/> and, if it returns a value, applies <paramref name="transformer"/>

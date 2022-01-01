@@ -29,10 +29,6 @@ namespace DNEE.Internal
             if (obj is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var astype))
                 return InvokeWithRelatedData(dyn, astype, dataOrigin, histNode);
 
-            var converter = handler.Converters.FirstOrDefault(c => c.CanConvertTo<T, object?>((object?)data));
-            if (converter != null)
-                return InvokeWithRelatedData((object?)data, converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
-
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, obj, histNode);
 
             ExceptionDispatchInfo? caught = null;

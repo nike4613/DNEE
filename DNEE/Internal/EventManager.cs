@@ -9,17 +9,17 @@ using System.Threading;
 
 namespace DNEE.Internal
 {
-    internal static class EventManager
+    internal class EventManager
     {
-        private static readonly ConcurrentDictionary<EventName, HandlerSet> EventHandlers = new();
+        private readonly ConcurrentDictionary<EventName, HandlerSet> EventHandlers = new();
 
-        private static readonly object InheritanceLock = new();
+        private readonly object InheritanceLock = new();
         //                                           base     -> derived
-        private static readonly ConcurrentDictionary<EventName, IEnumerable<EventName>> HandlerInheritance = new();
+        private readonly ConcurrentDictionary<EventName, IEnumerable<EventName>> HandlerInheritance = new();
         //                                           derived  -> base
-        private static readonly ConcurrentDictionary<EventName, EventName> HandlerBases = new();
+        private readonly ConcurrentDictionary<EventName, EventName> HandlerBases = new();
 
-        private static void UpdateBases(in EventName @event, HandlerSet newValue)
+        private void UpdateBases(in EventName @event, HandlerSet newValue)
         {
             if (HandlerInheritance.TryGetValue(@event, out var derived))
             {
@@ -31,17 +31,17 @@ namespace DNEE.Internal
             }
         }
 
-        private static EventHandle AtomicAddHandler(EventSource source, in EventName @event, IHandler handler)
+        private EventHandle AtomicAddHandler(DataOriginOwner source, in EventName @event, IHandler handler)
         {
             var handlers = EventHandlers.AddOrUpdate(@event, _ => HandlerSet.Empty.Add(handler), (_, e) => e.Add(handler));
 
             // then update derived events, if any
             UpdateBases(@event, handlers);
 
-            return new EventHandle(@event, handler, source.Origin);
+            return new EventHandle(this, @event, handler, source.Origin);
         }
 
-        private static bool AtomicRemoveHandler(in EventHandle handle)
+        private bool AtomicRemoveHandler(in EventHandle handle)
         {
             var handler = handle.Handler;
             HandlerSet? foundSet = null;
@@ -51,22 +51,22 @@ namespace DNEE.Internal
         }
 
         #region Register/Unregister
-        internal static EventHandle SubscribeInternal(EventSource source, in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
+        internal EventHandle SubscribeInternal(DataOriginOwner owner, in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new DynamicHandler(source.Origin, @event, handler, priority));
+            return AtomicAddHandler(owner, @event, new DynamicHandler(owner.Origin, @event, handler, priority));
         }
 
-        internal static EventHandle SubscribeInternal<T>(EventSource source, in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
+        internal EventHandle SubscribeInternal<T>(DataOriginOwner owner, in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new TypedHandler1<T>(source.Origin, @event, handler, priority, source.TypeConverters));
+            return AtomicAddHandler(owner, @event, new TypedHandler1<T>(owner.Origin, @event, handler, priority));
         }
 
-        internal static EventHandle SubscribeInternal<T, R>(EventSource source, in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
+        internal EventHandle SubscribeInternal<T, R>(DataOriginOwner owner, in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(source, @event, new TypedHandler2<T, R>(source.Origin, @event, handler, priority, source.TypeConverters));
+            return AtomicAddHandler(owner, @event, new TypedHandler2<T, R>(owner.Origin, @event, handler, priority));
         }
 
-        internal static void UnsubscribeInternal(in EventHandle handle)
+        internal void UnsubscribeInternal(in EventHandle handle)
         {
             // this has the EventSource in the handle
             if (AtomicRemoveHandler(handle))
@@ -75,7 +75,7 @@ namespace DNEE.Internal
         #endregion
 
         #region Inheritance
-        internal static void SetBaseInternal(EventSource source, EventName derived, EventName @base)
+        internal void SetBaseInternal(EventSource source, EventName derived, EventName @base)
         {
             if (source.Origin != derived.Origin)
                 throw new InvalidOperationException(SR.EventSource_CannotChangeInheritanceOfEvent);
@@ -102,7 +102,7 @@ namespace DNEE.Internal
             }
         }
 
-        internal static void RemoveBaseInternal(EventSource source, EventName derived)
+        internal void RemoveBaseInternal(EventSource source, EventName derived)
         {
             if (source.Origin != derived.Origin)
                 throw new InvalidOperationException(SR.EventSource_CannotChangeInheritanceOfEvent);
@@ -121,7 +121,7 @@ namespace DNEE.Internal
         #endregion
 
         #region Send
-        internal static InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data, IDataHistoryNode? dataHistory)
+        internal InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data, IDataHistoryNode? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var handlers))
                 return default; // there are no handlers for the event
@@ -129,7 +129,7 @@ namespace DNEE.Internal
             return handlers.Invoker.InvokeWithData((object?)data, source.Origin, dataHistory);
         }
 
-        internal static InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
+        internal InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var handlers))
                 return default; // there are no handlers for the event
@@ -141,7 +141,7 @@ namespace DNEE.Internal
             return invoker.InvokeWithData(data, source.Origin, dataHistory);
         }
 
-        internal static InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
+        internal InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var handlers))
                 return default; // there are no handlers for the event
