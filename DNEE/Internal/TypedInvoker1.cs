@@ -50,7 +50,7 @@ namespace DNEE.Internal
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        public InternalEventResult InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult InvokeWithData(T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, data, histNode);
 
@@ -73,7 +73,7 @@ namespace DNEE.Internal
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        public InternalEventResult InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
 
             var @event = new TypedInvokedEvent1<T>(dataOrigin, handler.Event, this, data, histNode);

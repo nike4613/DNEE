@@ -50,11 +50,10 @@ namespace DNEE.Internal
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithData(in T data, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithData(T data, DataOrigin origin, IDataHistoryNode? histNode)
             => InvokeWithData(data, origin, histNode);
 
-
-        public InternalEventResult<R> InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithData(T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
 
@@ -78,10 +77,10 @@ namespace DNEE.Internal
         }
 
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, T inputData, DataOrigin origin, IDataHistoryNode? histNode)
             => InvokeWithRelatedData(data, inputData, origin, histNode);
 
-        public InternalEventResult<R> InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
 
