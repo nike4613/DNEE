@@ -1,6 +1,7 @@
 ﻿using DNEE;
 using DNEE.Utility;
 using System;
+using System.Diagnostics;
 
 namespace _EventSystemTest
 {
@@ -8,6 +9,16 @@ namespace _EventSystemTest
     {
         static void Main(string[] args)
         {
+            var assocData = new AssociatedData();
+            Debug.Assert(!assocData.AddData("hello!").HasValue);
+            Debug.Assert(assocData.TryGetData<string>(out var msg) && msg == "hello!");
+            Debug.Assert(!assocData.AddData(5).HasValue);
+            Debug.Assert(assocData.TryGetData<int>(out var num) && num == 5);
+            Debug.Assert(assocData.TryGetData<object>(out var obj) && obj is string s && s == "hello!");
+            Debug.Assert(assocData.AddData("goodbye!") == Maybe.Some("hello!"));
+            Debug.Assert(assocData.TryGetData<string>(out msg) && msg == "goodbye!");
+
+
             var manager = new EventManager();
             var origin = new DataOriginOwner("EventSystemTest");
             var source = new EventSource(manager, origin);
