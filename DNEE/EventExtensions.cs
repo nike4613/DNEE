@@ -31,7 +31,7 @@ namespace DNEE
 
             if (result.HasValue)
             {
-                @event.Result = transformer((object?)result.Result);
+                @event.Result = (object?)transformer((object?)result.Result);
                 return true;
             }
 
@@ -62,7 +62,7 @@ namespace DNEE
 
             if (result.HasValue)
             {
-                @event.Result = transformer((object?)result.Result);
+                @event.Result = (object?)transformer((object?)result.Result);
                 return true;
             }
 
@@ -106,10 +106,10 @@ namespace DNEE
                 else
                 {
                     if (dynTransformer != null)
-                        ((IEvent)@event).Result = dynTransformer((object?)result.DynamicResult);
+                        ((IEvent)@event).Result = (object?)dynTransformer((object?)result.DynamicResult);
                     else
                     {
-                        ((IEvent)@event).Result = result.DynamicResult;
+                        ((IEvent)@event).Result = (object?)result.DynamicResult;
                     }
                 }
 

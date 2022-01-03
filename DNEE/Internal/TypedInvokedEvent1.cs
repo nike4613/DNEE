@@ -90,6 +90,11 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
+            if ((object?)DynamicData is AssociatedData assoc)
+            {
+                assoc.AddData(data);
+                return invoker.InvokeContinuationRelatedTyped(assoc, data, invoker.Origin, this).Unwrap();
+            }
             return invoker.InvokeContinuationTyped(data, invoker.Origin, this).Unwrap();
         }
 
@@ -99,6 +104,12 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
+            if ((object?)DynamicData is AssociatedData assoc)
+            {
+                var usable = data.AsType;
+                assoc.AddData(usable);
+                return invoker.InvokeContinuationRelatedTyped(assoc, usable, invoker.Origin, this).Unwrap();
+            }
             return invoker.InvokeContinuationRelatedTyped(data, data.AsType, invoker.Origin, this).Unwrap();
         }
 
