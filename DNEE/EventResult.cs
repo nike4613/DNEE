@@ -121,6 +121,12 @@ namespace DNEE
                 dynamicResult = dynResult;
                 typedResult = usable.AsType;
             }
+            else if (dynResult is IDynamicallyUsableAs dynUsable && dynUsable.TryAsType<T>(out var value))
+            {
+                IsTyped = true;
+                dynamicResult = dynResult;
+                typedResult = value;
+            }
             else
             {
                 IsTyped = false;
