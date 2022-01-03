@@ -115,6 +115,12 @@ namespace DNEE
                 typedData = usable.AsType;
                 dynData = data;
             }
+            else if (data is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var val))
+            {
+                IsTyped = true;
+                dynData = data;
+                typedData = val;
+            }
             else
             {
                 IsTyped = false;
