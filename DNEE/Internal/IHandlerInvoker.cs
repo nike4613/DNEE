@@ -5,15 +5,16 @@
         InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode? histNode);
     }
 
-    internal interface IHandlerInvoker<T> : IHandlerInvoker
+    internal interface IHandlerInvoker<in T> : IHandlerInvoker
     {
-        InternalEventResult InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode);
-        InternalEventResult InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode);
+        InternalEventResult InvokeWithData(T data, DataOrigin dataOrigin, IDataHistoryNode? histNode);
+        InternalEventResult InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode);
     }
 
-    internal interface IHandlerInvoker<T, R> : IHandlerInvoker<T>
+    // unfortunately we can't have variance on R
+    internal interface IHandlerInvoker<in T, R> : IHandlerInvoker<T>
     {
-        new InternalEventResult<R> InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode);
-        new InternalEventResult<R> InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode);
+        new InternalEventResult<R> InvokeWithData(T data, DataOrigin dataOrigin, IDataHistoryNode? histNode);
+        new InternalEventResult<R> InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode);
     }
 }

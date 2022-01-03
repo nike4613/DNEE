@@ -29,10 +29,6 @@ namespace DNEE.Internal
             if (obj is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var astype))
                 return InvokeWithRelatedData(dyn, astype, dataOrigin, histNode);
 
-            var converter = handler.Converters.FirstOrDefault(c => c.CanConvertTo<T, object?>((object?)data));
-            if (converter != null)
-                return InvokeWithRelatedData((object?)data, converter.ConvertTo<T, object?>((object?)data), dataOrigin, histNode);
-
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, obj, histNode);
 
             ExceptionDispatchInfo? caught = null;
@@ -54,11 +50,10 @@ namespace DNEE.Internal
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithData(in T data, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithData(T data, DataOrigin origin, IDataHistoryNode? histNode)
             => InvokeWithData(data, origin, histNode);
 
-
-        public InternalEventResult<R> InvokeWithData(in T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithData(T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
 
@@ -82,10 +77,10 @@ namespace DNEE.Internal
         }
 
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, T inputData, DataOrigin origin, IDataHistoryNode? histNode)
             => InvokeWithRelatedData(data, inputData, origin, histNode);
 
-        public InternalEventResult<R> InvokeWithRelatedData(object? data, in T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
         {
             var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
 

@@ -139,11 +139,11 @@
   <data name="EventSource_HandleNotFromThisSource" xml:space="preserve">
     <value>The provided EventHandle was not created by this EventSource.</value>
   </data>
-  <data name="EventSource_OriginAlreadyAttached" xml:space="preserve">
-    <value>The provided origin is already attached to an event source!</value>
-  </data>
   <data name="Handler_NextInvokedOnceOnly" xml:space="preserve">
     <value>Next can only be invoked once!</value>
+  </data>
+  <data name="OriginOwner_OriginAlreadyAttached" xml:space="preserve">
+    <value>The provided origin is already attached to an owner!</value>
   </data>
   <data name="Origin_CouldNotGetConstructingMember" xml:space="preserve">
     <value>Could not get the constructing member for DataOrigin</value>

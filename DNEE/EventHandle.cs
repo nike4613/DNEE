@@ -14,14 +14,16 @@ namespace DNEE
         /// <summary>
         /// Gets whether or not this handle is valid.
         /// </summary>
-        public bool IsValid => Handler != null && Origin != null;
+        public bool IsValid => Manager != null && Handler != null && Origin != null;
 
+        internal readonly Internal.EventManager Manager;
         internal readonly EventName Event;
         internal readonly DataOrigin Origin;
         internal readonly IHandler Handler;
 
-        internal EventHandle(EventName name, IHandler handler, DataOrigin origin)
+        internal EventHandle(Internal.EventManager manager, EventName name, IHandler handler, DataOrigin origin)
         {
+            Manager = manager;
             Event = name;
             Handler = handler;
             Origin = origin;
@@ -71,7 +73,7 @@ namespace DNEE
         /// </summary>
         public void Dispose()
         {
-            if (IsValid) EventManager.UnsubscribeInternal(this);
+            if (IsValid) Manager.UnsubscribeInternal(this);
         }
 
         /// <inheritdoc/>

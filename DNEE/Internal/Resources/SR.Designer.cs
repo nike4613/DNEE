@@ -19,7 +19,7 @@ namespace DNEE.Internal.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class SR {
@@ -124,15 +124,6 @@ namespace DNEE.Internal.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The provided origin is already attached to an event source!.
-        /// </summary>
-        internal static string EventSource_OriginAlreadyAttached {
-            get {
-                return ResourceManager.GetString("EventSource_OriginAlreadyAttached", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Next can only be invoked once!.
         /// </summary>
         internal static string Handler_NextInvokedOnceOnly {
@@ -183,6 +174,15 @@ namespace DNEE.Internal.Resources {
         internal static string Origin_TryGetSourceFromOrigin {
             get {
                 return ResourceManager.GetString("Origin_TryGetSourceFromOrigin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The provided origin is already attached to an owner!.
+        /// </summary>
+        internal static string OriginOwner_OriginAlreadyAttached {
+            get {
+                return ResourceManager.GetString("OriginOwner_OriginAlreadyAttached", resourceCulture);
             }
         }
     }

@@ -18,107 +18,19 @@ namespace DNEE
     /// </remarks>
     public sealed class EventSource
     {
-        /// <summary>
-        /// The <see cref="DataOrigin"/> associated with this <see cref="EventSource"/>.
-        /// </summary>
-        public DataOrigin Origin { get; }
-        private readonly object originAssocObj;
+        public DataOriginOwner OriginOwner { get; }
+        public DataOrigin Origin => OriginOwner.Origin;
+        public EventManager Manager { get; }
 
-        // this is the best I can do for a ConcurrentSet
-        private readonly ConcurrentDictionary<ITypeConverter, byte> typeConverters;
-
-        /// <summary>
-        /// Gets the set of <see cref="ITypeConverter"/>s that currently affect handlers subscribed through this
-        /// <see cref="EventSource"/>.
-        /// </summary>
-        public IEnumerable<ITypeConverter> TypeConverters { get; }
-
-        /// <summary>
-        /// Creates a new <see cref="EventSource"/> with its own <see cref="DataOrigin"/> named <paramref name="name"/>.
-        /// </summary>
-        /// <param name="name">The name of the <see cref="DataOrigin"/> to create.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or whitespace.</exception>
-        public EventSource(string name)
-            : this(new DataOrigin(name, null, 1))
+        public EventSource(EventManager manager, DataOriginOwner originOwner)
         {
-        }
+            if (manager is null)
+                throw new ArgumentNullException(nameof(manager));
+            if (originOwner is null)
+                throw new ArgumentNullException(nameof(manager));
 
-        /// <summary>
-        /// Creates a new <see cref="EventSource"/> with its own <see cref="DataOrigin"/> named <paramref name="name"/>,
-        /// marked as for the member represented by <paramref name="forMember"/>.
-        /// </summary>
-        /// <param name="name">The name of the <see cref="DataOrigin"/> to create.</param>
-        /// <param name="forMember">The member that this <see cref="EventSource"/> is for.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="name"/> is null or whitespace.</exception>
-        public EventSource(string name, MemberInfo forMember)
-            : this(new DataOrigin(name, forMember, 1))
-        {
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="EventSource"/> using the <see cref="DataOrigin"/> <paramref name="origin"/>.
-        /// This origin cannot be associated with any other <see cref="EventSource"/>.
-        /// </summary>
-        /// <param name="origin">The origin to use for this <see cref="EventSource"/>.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="origin"/> is already associated with another <see cref="EventSource"/>.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="origin"/> is <see langword="null"/>.</exception>
-        public EventSource(DataOrigin origin) : this(origin, null)
-        {
-        }
-
-
-        /// <summary>
-        /// Creates a new <see cref="EventSource"/> using the <see cref="DataOrigin"/> <paramref name="origin"/>.
-        /// This origin cannot be associated with any other <see cref="EventSource"/>.
-        /// </summary>
-        /// <param name="origin">The origin to use for this <see cref="EventSource"/>.</param>
-        /// <param name="converters">The set of converters to initialize this <see cref="EventSource"/> with.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="origin"/> is already associated with another <see cref="EventSource"/>.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="origin"/> is <see langword="null"/>.</exception>
-        public EventSource(DataOrigin origin, IEnumerable<ITypeConverter>? converters)
-        {
-            if (origin is null)
-                throw new ArgumentNullException(nameof(origin));
-            if (origin.IsValid)
-                throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
-
-            // the extra variable is so that the lambda below doesn't capture the source, but just the dictionary
-            var tyConvs = typeConverters = converters is null ? new() : new(converters.Select(k => new KeyValuePair<ITypeConverter, byte>(k, 0)));
-            TypeConverters = new LazyEnumerable<ITypeConverter>(() => tyConvs.Keys);
-
-            originAssocObj = new();
-            Origin = origin;
-            origin.SetSource(originAssocObj);
-
-            if (!origin.IsValid)
-                throw new ArgumentException(SR.EventSource_OriginAlreadyAttached, nameof(origin));
-        }
-
-        /// <summary>
-        /// Adds a type converter to this <see cref="EventSource"/>'s collection, available in <see cref="TypeConverters"/>.
-        /// </summary>
-        /// <remarks>
-        /// Changes to this collection will affect <i>all</i> event handlers subscribed through this <see cref="EventSource"/>.
-        /// </remarks>
-        /// <param name="converter">The converter to add.</param>
-        public void AddConverter(ITypeConverter converter)
-        {
-            if (converter is null)
-                throw new ArgumentNullException(nameof(converter));
-
-            typeConverters.TryAdd(converter, 0);
-        }
-
-        /// <summary>
-        /// Removes a type converter from this <see cref="EventSource"/>'s collection, available in <see cref="TypeConverters"/>.
-        /// </summary>
-        /// <param name="converter">The converter to remove.</param>
-        public bool RemoveConverter(ITypeConverter converter)
-        {
-            if (converter is null)
-                throw new ArgumentNullException(nameof(converter));
-
-            return typeConverters.TryRemove(converter, out _);
+            Manager = manager;
+            OriginOwner = originOwner;
         }
 
         /// <summary>
@@ -132,87 +44,6 @@ namespace DNEE
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="name"/> is null or whitespace.</exception>
         public EventName Event(string name)
             => new EventName(Origin, name);
-
-        /// <summary>
-        /// Subscribes to the event identified by <paramref name="event"/> with the handler <paramref name="handler"/>
-        /// and priority <paramref name="priority"/>.
-        /// </summary>
-        /// <param name="event">The event to subscribe to.</param>
-        /// <param name="handler">The handler to subscribe to the event with.</param>
-        /// <param name="priority">The priority with which <paramref name="handler"/> should be invoked. Higher is earlier.</param>
-        /// <returns>An <see cref="EventHandle"/> representing the subscription.</returns>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="handler"/> is null.</exception>
-        public EventHandle SubscribeTo(in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
-        {
-            if (!@event.IsValid)
-                throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
-            if (handler is null)
-                throw new ArgumentNullException(nameof(handler));
-
-            return EventManager.SubscribeInternal(this, @event, handler, priority);
-        }
-
-        /// <summary>
-        /// Subscribes to the event identified by <paramref name="event"/> with the handler <paramref name="handler"/>
-        /// and priority <paramref name="priority"/>.
-        /// </summary>
-        /// <typeparam name="T">The type that the handler expects from its data.</typeparam>
-        /// <param name="event">The event to subscribe to.</param>
-        /// <param name="handler">The handler to subscribe to the event with.</param>
-        /// <param name="priority">The priority with which <paramref name="handler"/> should be invoked. Higher is earlier.</param>
-        /// <returns>An <see cref="EventHandle"/> representing the subscription.</returns>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="handler"/> is null.</exception>
-        public EventHandle SubscribeTo<T>(in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
-        {
-            if (!@event.IsValid)
-                throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
-            if (handler is null)
-                throw new ArgumentNullException(nameof(handler));
-
-            return EventManager.SubscribeInternal(this, @event, handler, priority);
-        }
-
-        /// <summary>
-        /// Subscribes to the event identified by <paramref name="event"/> with the handler <paramref name="handler"/>
-        /// and priority <paramref name="priority"/>.
-        /// </summary>
-        /// <typeparam name="T">The type that the handler expects from its data.</typeparam>
-        /// <typeparam name="TRet">The type that the handler expects to return.</typeparam>
-        /// <param name="event">The event to subscribe to.</param>
-        /// <param name="handler">The handler to subscribe to the event with.</param>
-        /// <param name="priority">The priority with which <paramref name="handler"/> should be invoked. Higher is earlier.</param>
-        /// <returns>An <see cref="EventHandle"/> representing the subscription.</returns>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="event"/> is not valid.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="handler"/> is null.</exception>
-        public EventHandle SubscribeTo<T, TRet>(in EventName @event, ReturnEventHandler<T, TRet> handler, HandlerPriority priority)
-        {
-            if (!@event.IsValid)
-                throw new ArgumentException(SR.EventNameInvalid, nameof(@event));
-            if (handler is null)
-                throw new ArgumentNullException(nameof(handler));
-
-            return EventManager.SubscribeInternal(this, @event, handler, priority);
-        }
-
-        /// <summary>
-        /// Unsubscribes the handler represented by <paramref name="handle"/> from its event.
-        /// </summary>
-        /// <param name="handle">The <see cref="EventHandle"/> representing the handler to unsubscribe.</param>
-        /// <exception cref="ArgumentException">Thrown if <paramref name="handle"/> is not valid 
-        /// -OR- if <paramref name="handle"/> was not subscribed with this <see cref="EventSource"/>.</exception>
-        /// <exception cref="AggregateException">Thrown if the unsubscription handler(s) from <paramref name="handle"/>
-        /// threw. When this is thrown, the event is still unsubscribed.</exception>
-        public void Unsubscribe(in EventHandle handle)
-        {
-            if (!handle.IsValid)
-                throw new ArgumentException(SR.EventHandleInvalid, nameof(handle));
-            if (handle.Origin != Origin)
-                throw new ArgumentException(SR.EventSource_HandleNotFromThisSource, nameof(handle));
-
-            EventManager.UnsubscribeInternal(handle);
-        }
 
         /// <summary>
         /// Sets the base of the event identified by <paramref name="derived"/> to the event identified by <paramref name="base"/>.
@@ -233,7 +64,7 @@ namespace DNEE
             if (Origin != derived.Origin)
                 throw new ArgumentException(SR.EventSource_CannotChangeInheritanceOfEvent, nameof(derived));
 
-            EventManager.SetBaseInternal(this, derived, @base);
+            Manager.Internal.SetBaseInternal(this, derived, @base);
         }
 
         /// <summary>
@@ -249,7 +80,7 @@ namespace DNEE
             if (Origin != derived.Origin)
                 throw new ArgumentException(SR.EventSource_CannotChangeInheritanceOfEvent, nameof(derived));
 
-            EventManager.RemoveBaseInternal(this, derived);
+            Manager.Internal.RemoveBaseInternal(this, derived);
         }
 
         /// <summary>
@@ -268,7 +99,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.DynamicSendInternal(this, @event, (object?)data, null).Unwrap();
+                return Manager.Internal.DynamicSendInternal(this, @event, (object?)data, null).Unwrap();
             }
             catch (Exception e)
             {
@@ -292,7 +123,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.TypedSendInternal(this, @event, data, null).Unwrap();
+                return Manager.Internal.TypedSendInternal(this, @event, data, null).Unwrap();
             }
             catch (Exception e)
             {
@@ -317,7 +148,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.TypedSendInternal<T, TRet>(this, @event, data, null).Unwrap();
+                return Manager.Internal.TypedSendInternal<T, TRet>(this, @event, data, null).Unwrap();
             }
             catch (Exception e)
             {
@@ -362,7 +193,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.DynamicSendInternal(this, @event, (object?)data, node).Unwrap();
+                return Manager.Internal.DynamicSendInternal(this, @event, (object?)data, node).Unwrap();
             }
             catch (Exception e)
             {
@@ -395,7 +226,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.TypedSendInternal(this, @event, data, node).Unwrap();
+                return Manager.Internal.TypedSendInternal(this, @event, data, node).Unwrap();
             }
             catch (Exception e)
             {
@@ -429,7 +260,7 @@ namespace DNEE
 
             try
             {
-                return EventManager.TypedSendInternal<T, TRet>(this, @event, data, node).Unwrap();
+                return Manager.Internal.TypedSendInternal<T, TRet>(this, @event, data, node).Unwrap();
             }
             catch (Exception e)
             {
