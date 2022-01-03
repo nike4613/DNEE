@@ -14,7 +14,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <Version>1.0.0-beta.9</Version>
+    <Version>1.0.0-beta.10</Version>
     <Authors>DaNike</Authors>
     <Product>DaNike's Extensible Events</Product>
     <Description>A powerful, extensible, composition-based event framework.</Description>
