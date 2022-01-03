@@ -1,16 +1,11 @@
 ﻿using DNEE.Internal;
 using DNEE.Internal.Resources;
-using DNEE.Utility;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace DNEE
 {
     /// <summary>
-    /// A source of DNEE events. Also provides a way to subscribe to events.
+    /// A source of DNEE events. This is attached to a specific <see cref="EventManager"/>
     /// </summary>
     /// <remarks>
     /// For security, <b>DO NOT ALLOW ACCESS TO YOUR <see cref="EventSource"/>. 
@@ -18,10 +13,26 @@ namespace DNEE
     /// </remarks>
     public sealed class EventSource
     {
+        /// <summary>
+        /// Gets the <see cref="DataOriginOwner"/> associated with this <see cref="EventSource"/>.
+        /// </summary>
         public DataOriginOwner OriginOwner { get; }
+        /// <summary>
+        /// Gets the origin associated with this <see cref="EventSource"/>.
+        /// </summary>
         public DataOrigin Origin => OriginOwner.Origin;
+        /// <summary>
+        /// Gets the <see cref="EventManager"/> that this <see cref="EventSource"/> targets.
+        /// </summary>
         public EventManager Manager { get; }
 
+        /// <summary>
+        /// Creates an <see cref="EventSource"/> associated with the provided <see cref="EventManager"/>
+        /// and <see cref="DataOrigin"/>.
+        /// </summary>
+        /// <param name="manager">The event manager to use.</param>
+        /// <param name="originOwner">The origin to use.</param>
+        /// <exception cref="ArgumentNullException">Thrown if either parameter is null.</exception>
         public EventSource(EventManager manager, DataOriginOwner originOwner)
         {
             if (manager is null)

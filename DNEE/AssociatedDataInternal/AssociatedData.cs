@@ -4,6 +4,9 @@ using DNEE.AssociatedDataInternal;
 
 namespace DNEE
 {
+    /// <summary>
+    /// An object which can have objects of arbitrary types associated with it. It can also be used as any attached type in the event system.
+    /// </summary>
     public sealed class AssociatedData : IDynamicallyUsableAs
     {
         private IAssocDataMap assocDataMap = TypedAssocDataMap.Instance;
@@ -21,6 +24,16 @@ namespace DNEE
             return prev;
         }
 
+        /// <summary>
+        /// Attempts to get data stored for a type.
+        /// </summary>
+        /// <remarks>
+        /// Data is stored covariantly, so if you have a <see cref="string"/> stored and request an 
+        /// <see cref="object"/>, it will give you that <see cref="string"/> instance.
+        /// </remarks>
+        /// <typeparam name="T">The type to try to get.</typeparam>
+        /// <param name="value">The gotten value, if any.</param>
+        /// <returns><see langword="true"/> if a value was retrieved, <see langword="false"/> otherwise.</returns>
         public bool TryGetData<T>([MaybeNullWhen(false)] out T value)
         {
             SingleValueHolder<T> holder = default;

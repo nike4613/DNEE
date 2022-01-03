@@ -5,6 +5,13 @@ using System.Text;
 
 namespace DNEE
 {
+    /// <summary>
+    /// An object which manages event subscriptions and dispatching.
+    /// </summary>
+    /// <remarks>
+    /// All subscription methods require a <see cref="DataOriginOwner"/> to allow the event system to keep track of the
+    /// data origin for data provided by that handler.
+    /// </remarks>
     public sealed class EventManager
     {
         internal Internal.EventManager Internal { get; } = new();
