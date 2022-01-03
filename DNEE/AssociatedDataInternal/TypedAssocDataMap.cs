@@ -1,8 +1,5 @@
 ﻿using DNEE.Utility;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace DNEE.AssociatedDataInternal
 {
@@ -16,19 +13,17 @@ namespace DNEE.AssociatedDataInternal
         IAssocNodeOfType<T> WithReplaced(T value);
     }
 
-    internal abstract class TypedAssocDataMapBase : IAssocDataMap
+    internal abstract class TypedAssocDataMapBase : IAssocDataMap, IHolder
     {
-        public bool TryGetData<T>([MaybeNullWhen(false)] out T data)
+        public IHolder? TryGetData<T, THolder>(ref THolder holder) where THolder : IHolder
         {
             if (this is IAssocValueNodeOfType<T> node)
             {
-                data = node.Value;
-                return true;
+                return holder.WithValue(node.Value);
             }
             else
             {
-                data = default;
-                return false;
+                return null;
             }
         }
 
@@ -48,6 +43,17 @@ namespace DNEE.AssociatedDataInternal
         }
 
         public abstract TypedAssocDataMapBase AddDataNext<T>(T data);
+
+        IHolder? IHolder.WithValue<T>(T value) => AddDataNext(value);
+    }
+
+    internal sealed class TypedAssocDataMap0 : TypedAssocDataMapBase
+    {
+        public static readonly TypedAssocDataMap0 Instance = new();
+        private TypedAssocDataMap0() { }
+
+        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+            => new TypedAssocDataMap1<T>(data);
     }
 
     internal class TypedAssocDataMap1<T1> : TypedAssocDataMapBase, IAssocNodeOfType<T1>
