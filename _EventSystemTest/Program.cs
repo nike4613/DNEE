@@ -18,6 +18,27 @@ namespace _EventSystemTest
             Debug.Assert(assocData.AddData("goodbye!") == Maybe.Some("hello!"));
             Debug.Assert(assocData.TryGetData<string>(out msg) && msg == "goodbye!");
 
+            var assoc = new AssociatedData();
+            _ = assoc.AddData<byte>(0);
+            _ = assoc.AddData<sbyte>(0);
+            _ = assoc.AddData<short>(0);
+            _ = assoc.AddData<ushort>(0);
+            _ = assoc.AddData<int>(0);
+            _ = assoc.AddData<uint>(0);
+            _ = assoc.AddData<long>(0);
+            _ = assoc.AddData<ulong>(0);
+
+            // replaces int
+            _ = assoc.AddData(1);
+
+            // adds a new
+            _ = assoc.AddData("hello");
+            // should add new
+            var newobj = new object();
+            Debug.Assert(!assoc.AddData(newobj).HasValue);
+            Debug.Assert(assoc.TryGetData<string>(out msg) && msg == "hello");
+            Debug.Assert(assoc.TryGetData<object>(out obj) && obj == newobj);
+
 
             var manager = new EventManager();
             var origin = new DataOriginOwner("EventSystemTest");

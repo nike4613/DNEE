@@ -15,6 +15,8 @@ namespace DNEE.AssociatedDataInternal
 
     internal abstract class TypedAssocDataMapBase : IAssocDataMap, IHolder
     {
+        public virtual bool IsFull => false;
+
         public IHolder? TryGetData<T, THolder>(ref THolder holder) where THolder : IHolder
         {
             if (this is IAssocValueNodeOfType<T> node)
@@ -38,11 +40,17 @@ namespace DNEE.AssociatedDataInternal
             else
             {
                 prev = Maybe.None;
-                return AddDataNext(data);
+                var result = AddDataNext(data);
+                if (result is not null)
+                    return result;
+                // otherwise, bubble out to an X8AssocDataMap
+                return new X8AssocDataMap { Map1 = this, Map2 = new TypedAssocDataMap<T>(data) };
             }
         }
 
-        public abstract TypedAssocDataMapBase AddDataNext<T>(T data);
+        public bool CanInsertType<T>() => !IsFull || this is IAssocNodeOfType<T>;
+
+        public abstract TypedAssocDataMapBase? AddDataNext<T>(T data);
 
         IHolder? IHolder.WithValue<T>(T value) => AddDataNext(value);
     }
@@ -52,7 +60,7 @@ namespace DNEE.AssociatedDataInternal
         public static readonly TypedAssocDataMap Instance = new();
         private TypedAssocDataMap() { }
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T>(data);
     }
 
@@ -68,7 +76,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T1> IAssocNodeOfType<T1>.WithReplaced(T1 value) => Replace1(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T>(val1, data);
     }
 
@@ -87,7 +95,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T2> IAssocNodeOfType<T2>.WithReplaced(T2 value) => Replace2(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T2, T>(val1, val2, data);
     }
 
@@ -109,7 +117,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T3> IAssocNodeOfType<T3>.WithReplaced(T3 value) => Replace3(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T2, T3, T>(val1, val2, val3, data);
     }
 
@@ -135,7 +143,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T4> IAssocNodeOfType<T4>.WithReplaced(T4 value) => Replace4(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T2, T3, T4, T>(val1, val2, val3, val4, data);
     }
 
@@ -164,7 +172,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T5> IAssocNodeOfType<T5>.WithReplaced(T5 value) => Replace5(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T2, T3, T4, T5, T>(val1, val2, val3, val4, val5, data);
     }
 
@@ -196,7 +204,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T6> IAssocNodeOfType<T6>.WithReplaced(T6 value) => Replace6(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T2, T3, T4, T5, T6, T>(val1, val2, val3, val4, val5, val6, data);
     }
 
@@ -231,7 +239,7 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T7> IAssocNodeOfType<T7>.WithReplaced(T7 value) => Replace7(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data)
             => new TypedAssocDataMap<T1, T2, T3, T4, T5, T6, T7, T>(val1, val2, val3, val4, val5, val6, val7, data);
     }
 
@@ -269,10 +277,9 @@ namespace DNEE.AssociatedDataInternal
 
         IAssocNodeOfType<T8> IAssocNodeOfType<T8>.WithReplaced(T8 value) => Replace8(value);
 
-        public override TypedAssocDataMapBase AddDataNext<T>(T data)
-        {
-            // this needs to forward to some n-map
-            throw new NotImplementedException();
-        }
+        public override bool IsFull => true;
+
+        // we're full, return null
+        public override TypedAssocDataMapBase? AddDataNext<T>(T data) => null;
     }
 }
