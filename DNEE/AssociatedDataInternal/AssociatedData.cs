@@ -6,7 +6,7 @@ namespace DNEE
 {
     public sealed class AssociatedData : IDynamicallyUsableAs
     {
-        private IAssocDataMap assocDataMap = TypedAssocDataMap0.Instance;
+        private IAssocDataMap assocDataMap = TypedAssocDataMap.Instance;
 
         /// <summary>
         /// Adds an object of some type to this <see cref="AssociatedData"/> object, returning the previously
