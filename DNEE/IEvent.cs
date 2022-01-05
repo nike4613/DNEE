@@ -83,6 +83,8 @@ namespace DNEE
         /// </remarks>
         dynamic? DynamicData { get; }
 
+        bool HasTypedData { get; }
+
         /// <summary>
         /// Gets the data passed into this handler invocation, as <typeparamref name="T"/>.
         /// </summary>

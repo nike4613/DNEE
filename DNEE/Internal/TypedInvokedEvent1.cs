@@ -1,25 +1,43 @@
 ﻿using DNEE.Internal.Resources;
+using DNEE.Tuning;
 using DNEE.Utility;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DNEE.Internal
 {
-    internal sealed class TypedInvokedEvent1<T> : IEvent<T>, IDataHistoryNode<T>
+    internal struct TypedInvokedEvent1<T> : IEvent<T>, IInternalEvent<TypedInvokedEvent1<T>>//, IDataHistoryNode<T>
     {
-
         private readonly TypedInvoker1<T> invoker;
 
-        public TypedInvokedEvent1(DataOrigin dataOrigin, in EventName name, TypedInvoker1<T> invoker, dynamic? data, IDataHistoryNode? last)
+        public TypedInvokedEvent1(DataOrigin dataOrigin, in EventName name, TypedInvoker1<T> invoker, dynamic? data, ICreatedEvent? last)
         {
             DataOrigin = dataOrigin;
             EventName = name;
             this.invoker = invoker;
             DynamicData = data;
-            nextNode = last;
-            typedDataHistory = new DataHistoryEnumerable<T>(this);
+            DidCallNext = false;
+            lazyData = null;
+            lazyDataHistory = null;
+            Holder = null;
+            lastEvent = last;
         }
+
+        internal ICreatedEvent<TypedInvokedEvent1<T>>? Holder;
+
+        object IInternalEvent<TypedInvokedEvent1<T>>.InterfaceContract => InterfaceContract.Instance;
+
+        void IInternalEvent<TypedInvokedEvent1<T>>.SetHolder(ICreatedEvent<TypedInvokedEvent1<T>> created)
+            => Holder = created;
+
+        private sealed class InterfaceContract : EventInterfaceContract<TypedInvokedEvent1<T>>
+        {
+            public static readonly InterfaceContract Instance = new();
+
+            public override ICreatedEvent? GetLastEventCore(ref TypedInvokedEvent1<T> @event) => @event.lastEvent;
+        }
+
+        private readonly ICreatedEvent? lastEvent;
 
         // TODO: make this less messy somehow
 
@@ -58,18 +76,14 @@ namespace DNEE.Internal
             }
         }
 
-        public bool IsTyped => GetData().HasValue;
+        public bool HasTypedData => GetData().HasValue;
 
         public DataOrigin Origin => DataOrigin;
 
-        dynamic? IDataHistoryNode.Data => DynamicData;
-
-        private readonly IDataHistoryNode? nextNode;
-        IDataHistoryNode? IDataHistoryNode.Next => nextNode;
-
-        private readonly DataHistoryEnumerable<T> typedDataHistory;
-        public IEnumerable<DataWithOrigin> DataHistory => typedDataHistory;
-        IEnumerable<DataWithOrigin<T>> IEvent<T>.DataHistory => typedDataHistory;
+        private readonly DataHistoryEnumerable<T>? lazyDataHistory;
+        public DataHistoryEnumerable<T> DataHistory => throw new NotImplementedException(); // TODO:
+        IEnumerable<DataWithOrigin> IEvent.DataHistory => DataHistory;
+        IEnumerable<DataWithOrigin<T>> IEvent<T>.DataHistory => DataHistory;
 
         public EventResult Next()
         {
@@ -78,7 +92,7 @@ namespace DNEE.Internal
 
             DidCallNext = true;
             // we always invoke the dynamic continuation because it makes my life *much* simpler
-            return invoker.InvokeContinuationDynamic((object?)DynamicData, DataOrigin, this).Unwrap();
+            return invoker.InvokeContinuationDynamic((object?)DynamicData, DataOrigin, Holder).Unwrap();
         }
 
         public EventResult Next(dynamic? data)
@@ -87,7 +101,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuationDynamic((object?)data, invoker.Origin, this).Unwrap();
+            return invoker.InvokeContinuationDynamic((object?)data, invoker.Origin, Holder).Unwrap();
         }
 
         public EventResult Next(in T data)
@@ -99,9 +113,9 @@ namespace DNEE.Internal
             if ((object?)DynamicData is AssociatedData assoc)
             {
                 assoc.AddData(data);
-                return invoker.InvokeContinuationRelatedTyped(assoc, data, invoker.Origin, this).Unwrap();
+                return invoker.InvokeContinuationRelatedTyped(assoc, data, invoker.Origin, Holder).Unwrap();
             }
-            return invoker.InvokeContinuationTyped(data, invoker.Origin, this).Unwrap();
+            return invoker.InvokeContinuationTyped(data, invoker.Origin, Holder).Unwrap();
         }
 
         public EventResult Next(IUsableAs<T> data)
@@ -114,9 +128,9 @@ namespace DNEE.Internal
             {
                 var usable = data.AsType;
                 assoc.AddData(usable);
-                return invoker.InvokeContinuationRelatedTyped(assoc, usable, invoker.Origin, this).Unwrap();
+                return invoker.InvokeContinuationRelatedTyped(assoc, usable, invoker.Origin, Holder).Unwrap();
             }
-            return invoker.InvokeContinuationRelatedTyped(data, data.AsType, invoker.Origin, this).Unwrap();
+            return invoker.InvokeContinuationRelatedTyped(data, data.AsType, invoker.Origin, Holder).Unwrap();
         }
 
         public EventResult GetEventResult()
