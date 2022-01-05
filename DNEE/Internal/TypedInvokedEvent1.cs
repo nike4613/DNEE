@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DNEE.Internal
 {
-    internal sealed class TypedInvokedEvent1<T> : IEvent<T>, IEventWithResult, IDataHistoryNode<T>
+    internal sealed class TypedInvokedEvent1<T> : IEvent<T>, IDataHistoryNode<T>
     {
 
         private readonly TypedInvoker1<T> invoker;
@@ -38,19 +38,27 @@ namespace DNEE.Internal
         dynamic? IEvent.Data => DynamicData;
         public dynamic? DynamicData { get; }
 
+        private Maybe<T>? lazyData;
+
+        private Maybe<T> GetData()
+        {
+            lazyData ??= Helpers.TryUseAs<T>((object?)DynamicData, out var value)
+                ? Maybe.Some(value) : Maybe.None;
+            return lazyData.Value;
+        }
+
         public T Data
         {
             get
             {
-                if (DynamicData is T tval)
-                    return tval;
-                if (DynamicData is IUsableAs<T> usable)
-                    return usable.AsType;
-                if (DynamicData is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var val))
-                    return val;
+                var data = GetData();
+                if (data.HasValue)
+                    return data.Value;
                 throw new InvalidCastException();
             }
         }
+
+        public bool IsTyped => GetData().HasValue;
 
         public DataOrigin Origin => DataOrigin;
 
@@ -58,8 +66,6 @@ namespace DNEE.Internal
 
         private readonly IDataHistoryNode? nextNode;
         IDataHistoryNode? IDataHistoryNode.Next => nextNode;
-
-        public bool IsTyped => DynamicData is T;
 
         private readonly DataHistoryEnumerable<T> typedDataHistory;
         public IEnumerable<DataWithOrigin> DataHistory => typedDataHistory;

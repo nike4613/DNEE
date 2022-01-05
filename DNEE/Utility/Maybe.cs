@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace DNEE.Utility
 {
@@ -35,7 +34,7 @@ namespace DNEE.Utility
     /// <typeparam name="T">The type to wrap.</typeparam>
     /// <see cref="Maybe"/>
     [DebuggerDisplay("{DebuggerView,nq}")]
-    public struct Maybe<T> : IEquatable<Maybe<T>>, IEquatable<T>
+    public readonly struct Maybe<T> : IEquatable<Maybe<T>>, IEquatable<T>
     {
         private string DebuggerView => HasValue ? $"Some({Value})" : "None";
 

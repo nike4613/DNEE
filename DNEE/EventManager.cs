@@ -1,7 +1,6 @@
 ﻿using DNEE.Internal.Resources;
+using DNEE.Tuning;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace DNEE
 {
@@ -14,7 +13,15 @@ namespace DNEE
     /// </remarks>
     public sealed class EventManager
     {
-        internal Internal.EventManager Internal { get; } = new();
+        internal Internal.EventManager Internal { get; }
+
+        public EventManager() : this(null) { }
+
+        public EventManager(IEventAllocator? allocator)
+        {
+            allocator ??= DefaultEventAllocator.Instance;
+            Internal = new(allocator);
+        }
 
         /// <summary>
         /// Subscribes to the event identified by <paramref name="event"/> with the handler <paramref name="handler"/>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DNEE.Utility;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
@@ -78,9 +79,10 @@ namespace DNEE
         /// <summary>
         /// Gets whether or not the value this <see cref="EventResult{T}"/> holds is strongly typed.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(typedResult))]
         public bool IsTyped { get; }
 
-        private readonly T typedResult;
+        private readonly T? typedResult;
         /// <summary>
         /// Gets the strongly typed result of the event invocation, if there is one.
         /// </summary>
@@ -109,29 +111,18 @@ namespace DNEE
         internal EventResult(dynamic? dynResult)
         {
             HasValue = true;
-            if (dynResult is T tval)
+
+            if (Helpers.TryUseAs<T>((object?)dynResult, out var result))
             {
-                IsTyped = true;
                 dynamicResult = dynResult;
-                typedResult = tval;
-            }
-            else if (dynResult is IUsableAs<T> usable)
-            {
+                typedResult = result;
                 IsTyped = true;
-                dynamicResult = dynResult;
-                typedResult = usable.AsType;
-            }
-            else if (dynResult is IDynamicallyUsableAs dynUsable && dynUsable.TryAsType<T>(out var value))
-            {
-                IsTyped = true;
-                dynamicResult = dynResult;
-                typedResult = value;
             }
             else
             {
                 IsTyped = false;
                 dynamicResult = dynResult;
-                typedResult = default!;
+                typedResult = default;
             }
         }
 
@@ -237,7 +228,7 @@ namespace DNEE
             int hashCode = -1715740316;
             hashCode = hashCode * -1521134295 + HasValue.GetHashCode();
             hashCode = hashCode * -1521134295 + IsTyped.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<T>.Default.GetHashCode(typedResult);
+            hashCode = hashCode * -1521134295 + EqualityComparer<T?>.Default.GetHashCode(typedResult);
             hashCode = hashCode * -1521134295 + EqualityComparer<dynamic?>.Default.GetHashCode((object?)dynamicResult);
             return hashCode;
         }

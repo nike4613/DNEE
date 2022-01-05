@@ -3,11 +3,10 @@ using DNEE.Utility;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace DNEE.Internal
 {
-    internal sealed class TypedInvokedEvent2<T, R> : IEvent<T, R>, IEventWithResult<R>, IDataHistoryNode<T>
+    internal sealed class TypedInvokedEvent2<T, R> : IEvent<T, R>, IDataHistoryNode<T>
     {
 
         private readonly TypedInvoker2<T, R> invoker;
@@ -65,19 +64,27 @@ namespace DNEE.Internal
 
         IEnumerable<DataWithOrigin> IEvent.DataHistory => typedDataHistory;
 
-        public bool IsTyped => DynamicData is T || DynamicData is IUsableAs<T>;
+        private Maybe<T>? lazyData;
+
+        private Maybe<T> GetData()
+        {
+            lazyData ??= Helpers.TryUseAs<T>((object?)DynamicData, out var value)
+                ? Maybe.Some(value) : Maybe.None;
+            return lazyData.Value;
+        }
 
         public T Data
         {
             get
             {
-                if (DynamicData is T tval)
-                    return tval;
-                if (DynamicData is IUsableAs<T> usable)
-                    return usable.AsType;
+                var data = GetData();
+                if (data.HasValue)
+                    return data.Value;
                 throw new InvalidCastException();
             }
         }
+
+        public bool IsTyped => GetData().HasValue;
 
         public DataOrigin Origin => DataOrigin;
 
@@ -155,7 +162,5 @@ namespace DNEE.Internal
                 return new EventResult<R>((object?)result.Value);
             return default;
         }
-
-        EventResult IEventWithResult.GetEventResult() => GetEventResult();
     }
 }

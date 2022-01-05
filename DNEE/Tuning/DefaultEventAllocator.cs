@@ -6,6 +6,8 @@ namespace DNEE.Tuning
 {
     public sealed class DefaultEventAllocator : IEventAllocator
     {
+        public static readonly DefaultEventAllocator Instance = new();
+
         private abstract class WrapperBase<TImpl> : ICreatedEvent<TImpl>
             where TImpl : IInternalEvent<TImpl>
         {

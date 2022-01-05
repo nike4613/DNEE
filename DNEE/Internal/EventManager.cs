@@ -1,4 +1,5 @@
 ﻿using DNEE.Internal.Resources;
+using DNEE.Tuning;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +9,13 @@ namespace DNEE.Internal
 {
     internal class EventManager
     {
+        private readonly IEventAllocator allocator;
+
+        public EventManager(IEventAllocator allocator)
+        {
+            this.allocator = allocator;
+        }
+
         private readonly ConcurrentDictionary<EventName, HandlerSet> EventHandlers = new();
 
         private readonly object InheritanceLock = new();
@@ -50,17 +58,17 @@ namespace DNEE.Internal
         #region Register/Unregister
         internal EventHandle SubscribeInternal(DataOriginOwner owner, in EventName @event, DynamicEventHandler handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(owner, @event, new DynamicHandler(owner.Origin, @event, handler, priority));
+            return AtomicAddHandler(owner, @event, new DynamicHandler(this, owner.Origin, @event, handler, priority));
         }
 
         internal EventHandle SubscribeInternal<T>(DataOriginOwner owner, in EventName @event, NoReturnEventHandler<T> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(owner, @event, new TypedHandler1<T>(owner.Origin, @event, handler, priority));
+            return AtomicAddHandler(owner, @event, new TypedHandler1<T>(this, owner.Origin, @event, handler, priority));
         }
 
         internal EventHandle SubscribeInternal<T, R>(DataOriginOwner owner, in EventName @event, ReturnEventHandler<T, R> handler, HandlerPriority priority)
         {
-            return AtomicAddHandler(owner, @event, new TypedHandler2<T, R>(owner.Origin, @event, handler, priority));
+            return AtomicAddHandler(owner, @event, new TypedHandler2<T, R>(this, owner.Origin, @event, handler, priority));
         }
 
         internal void UnsubscribeInternal(in EventHandle handle)

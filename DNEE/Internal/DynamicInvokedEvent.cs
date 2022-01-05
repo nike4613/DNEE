@@ -6,7 +6,7 @@ using System.Text;
 
 namespace DNEE.Internal
 {
-    internal sealed class DynamicInvokedEvent : IEvent, IEventWithResult, IDataHistoryNode
+    internal sealed class DynamicInvokedEvent : IEvent, IDataHistoryNode
     {
         private readonly DynamicInvoker invoker;
 

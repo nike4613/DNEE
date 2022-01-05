@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DNEE.Utility;
+using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace DNEE
 {
     /// <summary>
     /// A wrapper struct representing a piece of <see langword="dynamic"/> data and an associated <see cref="DataOrigin"/>.
     /// </summary>
-    [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", 
-        Justification = "This is a simple wrapper type; it shouldn't be compared.")]
-    public struct DataWithOrigin
+    public readonly struct DataWithOrigin
     {
         /// <summary>
         /// Gets the origin associated with the data.
@@ -58,9 +55,7 @@ namespace DNEE
     /// A wrapper struct representing a piece of (possibly) typed data and an associated <see cref="DataOrigin"/>.
     /// </summary>
     /// <typeparam name="T">The type that the data is expected to be.</typeparam>
-    [SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types",
-        Justification = "This is a simple wrapper type; it shouldn't be compared.")]
-    public struct DataWithOrigin<T>
+    public readonly struct DataWithOrigin<T>
     {
         /// <summary>
         /// Gets the origin associated with the data.
@@ -75,6 +70,7 @@ namespace DNEE
         /// <summary>
         /// Gets whether or not the data is of type <typeparamref name="T"/>.
         /// </summary>
+        [MemberNotNullWhen(true, nameof(typedData))]
         public bool IsTyped { get; }
 
         private readonly dynamic? dynData;
@@ -87,7 +83,7 @@ namespace DNEE
         /// </remarks>
         public dynamic? DynamicData => IsTyped ? dynData ?? typedData : dynData;
 
-        private readonly T typedData;
+        private readonly T? typedData;
         /// <summary>
         /// Gets the data wrapped by this struct, if it is of type <typeparamref name="T"/>.
         /// </summary>
@@ -103,29 +99,17 @@ namespace DNEE
         {
             Origin = origin;
             Event = default;
-            if (data is T tval)
+            if (Helpers.TryUseAs<T>((object?)data, out var tval))
             {
                 IsTyped = true;
                 typedData = tval;
                 dynData = data;
             }
-            else if (data is IUsableAs<T> usable)
-            {
-                IsTyped = true;
-                typedData = usable.AsType;
-                dynData = data;
-            }
-            else if (data is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var val))
-            {
-                IsTyped = true;
-                dynData = data;
-                typedData = val;
-            }
             else
             {
                 IsTyped = false;
                 dynData = data;
-                typedData = default!;
+                typedData = default;
             }
         }
 
