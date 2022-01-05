@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace DNEE.Tuning
 {
@@ -20,12 +18,12 @@ namespace DNEE.Tuning
                 Impl.SetHolder(this);
             }
 
-            ICreatedEvent? ICreatedEvent.LastEvent => Impl.LastEvent;
+            public object InterfaceContract => Impl.InterfaceContract;
             ref TImpl ICreatedEvent<TImpl>.GetInternalEvent() => ref Impl;
 
         }
 
-        private class TypelessWrapper<TImpl> : WrapperBase<TImpl>, IEvent
+        private class TypelessWrapper<TImpl> : WrapperBase<TImpl>, IAllocatedEvent<TImpl>
             where TImpl : IEvent, IInternalEvent<TImpl>
         {
             public TypelessWrapper(TImpl impl) : base(impl) { }
@@ -40,25 +38,26 @@ namespace DNEE.Tuning
             EventResult IEvent.Next(dynamic? data) => Impl.Next((object?)data);
         }
 
-        public AllocationHandle<IEvent> AllocateTypeless<TImpl>(TImpl impl) where TImpl : IEvent, IInternalEvent<TImpl>
+        public AllocationHandle<IAllocatedEvent<TImpl>> AllocateTypeless<TImpl>(TImpl impl) where TImpl : IEvent, IInternalEvent<TImpl>
             => new(new TypelessWrapper<TImpl>(impl), null);
 
-        private class InTypedWrapper<TImpl, T> : TypelessWrapper<TImpl>, IEvent<T>
+        private class InTypedWrapper<TImpl, T> : TypelessWrapper<TImpl>, IAllocatedEvent<TImpl, T>
             where TImpl : IEvent<T>, IInternalEvent<TImpl>
         {
             public InTypedWrapper(TImpl impl) : base(impl) { }
 
             dynamic? IEvent<T>.DynamicData => Impl.DynamicData;
+            bool IEvent<T>.HasTypedData => Impl.HasTypedData;
             T IEvent<T>.Data => Impl.Data;
             IEnumerable<DataWithOrigin<T>> IEvent<T>.DataHistory => Impl.DataHistory;
             EventResult IEvent<T>.Next(in T data) => Impl.Next(data);
             EventResult IEvent<T>.Next(IUsableAs<T> data) => Impl.Next(data);
         }
 
-        public AllocationHandle<IEvent<T>> AllocateInTyped<TImpl, T>(TImpl impl) where TImpl : IEvent<T>, IInternalEvent<TImpl>
+        public AllocationHandle<IAllocatedEvent<TImpl, T>> AllocateInTyped<TImpl, T>(TImpl impl) where TImpl : IEvent<T>, IInternalEvent<TImpl>
             => new(new InTypedWrapper<TImpl, T>(impl), null);
 
-        private class InOutTypedWrapper<TImpl, T, TRet> : InTypedWrapper<TImpl, T>, IEvent<T, TRet>
+        private class InOutTypedWrapper<TImpl, T, TRet> : InTypedWrapper<TImpl, T>, IAllocatedEvent<TImpl, T, TRet>
             where TImpl : IEvent<T, TRet>, IInternalEvent<TImpl>
         {
             public InOutTypedWrapper(TImpl impl) : base(impl) { }
@@ -69,7 +68,7 @@ namespace DNEE.Tuning
             EventResult<TRet> IEvent<T, TRet>.Next(IUsableAs<T> data) => Impl.Next(data);
         }
 
-        public AllocationHandle<IEvent<T, TRet>> AllocateInOutTyped<TImpl, T, TRet>(TImpl impl) where TImpl : IEvent<T, TRet>, IInternalEvent<TImpl>
+        public AllocationHandle<IAllocatedEvent<TImpl, T, TRet>> AllocateInOutTyped<TImpl, T, TRet>(TImpl impl) where TImpl : IEvent<T, TRet>, IInternalEvent<TImpl>
             => new(new InOutTypedWrapper<TImpl, T, TRet>(impl), null);
     }
 }

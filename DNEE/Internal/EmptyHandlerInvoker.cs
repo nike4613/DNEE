@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DNEE.Tuning;
 
 namespace DNEE.Internal
 {
@@ -10,7 +8,7 @@ namespace DNEE.Internal
 
         private EmptyHandlerInvoker() { }
 
-        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin origin, IDataHistoryNode? node)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin origin, ICreatedEvent? node)
             => default;
     }
 }

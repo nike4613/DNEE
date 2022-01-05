@@ -1,4 +1,5 @@
-﻿using DNEE.Utility;
+﻿using DNEE.Tuning;
+using DNEE.Utility;
 using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -19,26 +20,31 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
-        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, ICreatedEvent? histNode)
         {
             var obj = (object?)data;
             if (obj is T tval)
                 return InvokeWithData(tval, dataOrigin, histNode);
-            if (obj is IUsableAs<T> usable)
-                return InvokeWithRelatedData(usable, usable.AsType, dataOrigin, histNode);
-            if (obj is IDynamicallyUsableAs dyn && dyn.TryAsType<T>(out var astype))
-                return InvokeWithRelatedData(dyn, astype, dataOrigin, histNode);
+            if (Helpers.TryUseAs<T>((object?)data, out var astype))
+                return InvokeWithRelatedData(data, astype, dataOrigin, histNode);
 
-            var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, obj, histNode);
-
+            TypedInvokedEvent2<T, R> @event;
             ExceptionDispatchInfo? caught = null;
-            try
+
+            using (var allocated = handler.Manager.Allocator
+                .AllocateInOutTyped<TypedInvokedEvent2<T, R>, T, R>(new(dataOrigin, handler.Event, this, obj, histNode)))
             {
-                handler.HandlerFunc.Invoke(@event, Maybe.None);
-            }
-            catch (Exception e)
-            {
-                caught = ExceptionDispatchInfo.Capture(e);
+                try
+                {
+                    handler.HandlerFunc.Invoke(allocated.Object, Maybe.None);
+                }
+                catch (Exception e)
+                {
+                    caught = ExceptionDispatchInfo.Capture(e);
+                }
+
+                // at this point we don't need to keep it allocated, we can copy out of the heap 
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
@@ -50,21 +56,28 @@ namespace DNEE.Internal
             return new InternalEventResult(@event.GetEventResult(), caught);
         }
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithData(T data, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithData(T data, DataOrigin origin, ICreatedEvent? histNode)
             => InvokeWithData(data, origin, histNode);
 
-        public InternalEventResult<R> InvokeWithData(T data, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithData(T data, DataOrigin dataOrigin, ICreatedEvent? histNode)
         {
-            var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
-
+            TypedInvokedEvent2<T, R> @event;
             ExceptionDispatchInfo? caught = null;
-            try
+
+            using (var allocated = handler.Manager.Allocator
+                .AllocateInOutTyped<TypedInvokedEvent2<T, R>, T, R>(new(dataOrigin, handler.Event, this, data, histNode)))
             {
-                handler.HandlerFunc.Invoke(@event, Maybe.Some(data));
-            }
-            catch (Exception e)
-            {
-                caught = ExceptionDispatchInfo.Capture(e);
+                try
+                {
+                    handler.HandlerFunc.Invoke(allocated.Object, Maybe.Some(data));
+                }
+                catch (Exception e)
+                {
+                    caught = ExceptionDispatchInfo.Capture(e);
+                }
+
+                // at this point we don't need to keep it allocated, we can copy out of the heap 
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
@@ -77,21 +90,28 @@ namespace DNEE.Internal
         }
 
 
-        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        InternalEventResult IHandlerInvoker<T>.InvokeWithRelatedData(object? data, T inputData, DataOrigin origin, ICreatedEvent? histNode)
             => InvokeWithRelatedData(data, inputData, origin, histNode);
 
-        public InternalEventResult<R> InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, IDataHistoryNode? histNode)
+        public InternalEventResult<R> InvokeWithRelatedData(object? data, T inputData, DataOrigin dataOrigin, ICreatedEvent? histNode)
         {
-            var @event = new TypedInvokedEvent2<T, R>(dataOrigin, handler.Event, this, data, histNode);
-
+            TypedInvokedEvent2<T, R> @event;
             ExceptionDispatchInfo? caught = null;
-            try
+
+            using (var allocated = handler.Manager.Allocator
+                .AllocateInOutTyped<TypedInvokedEvent2<T, R>, T, R>(new(dataOrigin, handler.Event, this, data, histNode)))
             {
-                handler.HandlerFunc.Invoke(@event, Maybe.Some(inputData));
-            }
-            catch (Exception e)
-            {
-                caught = ExceptionDispatchInfo.Capture(e);
+                try
+                {
+                    handler.HandlerFunc.Invoke(allocated.Object, Maybe.Some(inputData));
+                }
+                catch (Exception e)
+                {
+                    caught = ExceptionDispatchInfo.Capture(e);
+                }
+
+                // at this point we don't need to keep it allocated, we can copy out of the heap 
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
@@ -104,13 +124,13 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult<R> InvokeContinuationDynamic(dynamic? data, DataOrigin origin, IDataHistoryNode? histNode)
+        internal InternalEventResult<R> InvokeContinuationDynamic(dynamic? data, DataOrigin origin, ICreatedEvent? histNode)
         {
             return continuation.InvokeWithData((object?)data, origin, histNode);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult<R> InvokeContinuationTyped(in T data, DataOrigin origin, IDataHistoryNode? histNode)
+        internal InternalEventResult<R> InvokeContinuationTyped(in T data, DataOrigin origin, ICreatedEvent? histNode)
         {
             if (continuation is IHandlerInvoker<T> typed)
             {
@@ -125,7 +145,7 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult<R> InvokeContinuationRelatedTyped(object? data, in T inputData, DataOrigin origin, IDataHistoryNode? histNode)
+        internal InternalEventResult<R> InvokeContinuationRelatedTyped(object? data, in T inputData, DataOrigin origin, ICreatedEvent? histNode)
         {
             if (continuation is IHandlerInvoker<T> typed)
             {

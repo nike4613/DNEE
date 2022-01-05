@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace DNEE.Internal
 {
-    internal struct TypedInvokedEvent1<T> : IEvent<T>, IInternalEvent<TypedInvokedEvent1<T>>//, IDataHistoryNode<T>
+    internal struct TypedInvokedEvent1<T> : IEvent<T>, IInternalEventImpl<TypedInvokedEvent1<T>>
     {
         private readonly TypedInvoker1<T> invoker;
 
@@ -23,7 +23,7 @@ namespace DNEE.Internal
             lastEvent = last;
         }
 
-        internal ICreatedEvent<TypedInvokedEvent1<T>>? Holder;
+        public ICreatedEvent<TypedInvokedEvent1<T>>? Holder { get; set; }
 
         object IInternalEvent<TypedInvokedEvent1<T>>.InterfaceContract => InterfaceContract.Instance;
 

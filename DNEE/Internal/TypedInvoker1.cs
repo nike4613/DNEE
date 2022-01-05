@@ -41,10 +41,8 @@ namespace DNEE.Internal
                     caught = ExceptionDispatchInfo.Capture(e);
                 }
 
-                // at this point we don't need to keep it allocated, we can copy out of the heap 
-                @event = allocated.Object.GetInternalEvent();
-                // and release the ref
-                @event.Holder = null;
+                // at this point we don't need to keep it allocated, we can move it out of the heap
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
@@ -74,9 +72,7 @@ namespace DNEE.Internal
                 }
 
                 // at this point we don't need to keep it allocated, we can copy out of the heap 
-                @event = allocated.Object.GetInternalEvent();
-                // and release the ref
-                @event.Holder = null;
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
@@ -106,9 +102,7 @@ namespace DNEE.Internal
                 }
 
                 // at this point we don't need to keep it allocated, we can copy out of the heap 
-                @event = allocated.Object.GetInternalEvent();
-                // and release the ref
-                @event.Holder = null;
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
