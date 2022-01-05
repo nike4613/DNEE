@@ -9,11 +9,11 @@ namespace DNEE.Internal
 {
     internal class EventManager
     {
-        private readonly IEventAllocator allocator;
+        public IEventAllocator Allocator { get; }
 
         public EventManager(IEventAllocator allocator)
         {
-            this.allocator = allocator;
+            Allocator = allocator;
         }
 
         private readonly ConcurrentDictionary<EventName, HandlerSet> EventHandlers = new();
@@ -126,7 +126,7 @@ namespace DNEE.Internal
         #endregion
 
         #region Send
-        internal InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data, IDataHistoryNode? dataHistory)
+        internal InternalEventResult DynamicSendInternal(EventSource source, in EventName @event, dynamic? data, ICreatedEvent? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var handlers))
                 return default; // there are no handlers for the event
@@ -134,7 +134,7 @@ namespace DNEE.Internal
             return handlers.Invoker.InvokeWithData((object?)data, source.Origin, dataHistory);
         }
 
-        internal InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
+        internal InternalEventResult TypedSendInternal<T>(EventSource source, in EventName @event, in T data, ICreatedEvent? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var handlers))
                 return default; // there are no handlers for the event
@@ -146,7 +146,7 @@ namespace DNEE.Internal
             return invoker.InvokeWithData(data, source.Origin, dataHistory);
         }
 
-        internal InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data, IDataHistoryNode? dataHistory)
+        internal InternalEventResult<R> TypedSendInternal<T, R>(EventSource source, in EventName @event, in T data, ICreatedEvent? dataHistory)
         {
             if (!EventHandlers.TryGetValue(@event, out var handlers))
                 return default; // there are no handlers for the event

@@ -7,9 +7,9 @@ namespace DNEE.Tuning
     public interface ICreatedEvent
     {
         /// <summary>
-        /// Implementers must forward this to <see cref="IInternalEvent{TSelf}.LastEvent"/>.
+        /// Implementers must forward this to <see cref="IInternalEvent{TSelf}.InterfaceContract"/>.
         /// </summary>
-        ICreatedEvent? LastEvent { get; }
+        object InterfaceContract { get; }
     }
 
     public interface ICreatedEvent<TEvent> : ICreatedEvent where TEvent : IInternalEvent<TEvent>
