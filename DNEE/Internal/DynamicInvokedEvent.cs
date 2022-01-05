@@ -1,24 +1,39 @@
 ﻿using DNEE.Internal.Resources;
+using DNEE.Tuning;
 using DNEE.Utility;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DNEE.Internal
 {
-    internal sealed class DynamicInvokedEvent : IEvent, IDataHistoryNode
+    internal struct DynamicInvokedEvent : IEvent, IInternalEventImpl<DynamicInvokedEvent>
     {
         private readonly DynamicInvoker invoker;
 
-        public DynamicInvokedEvent(DataOrigin dataOrigin, in EventName name, DynamicInvoker invoker, dynamic? data, IDataHistoryNode? histNode)
+        public DynamicInvokedEvent(DataOrigin dataOrigin, in EventName name, DynamicInvoker invoker, dynamic? data, ICreatedEvent? histNode)
         {
             Data = data;
             DataOrigin = dataOrigin;
             EventName = name;
             this.invoker = invoker;
-            nextNode = histNode;
-            DataHistory = new DataHistoryEnumerable(this);
+            lastEvent = histNode;
+            lazyDataHistory = null;
+            Holder = null;
+            DidCallNext = false;
         }
+
+        public ICreatedEvent<DynamicInvokedEvent>? Holder { get; set; }
+        object IInternalEvent<DynamicInvokedEvent>.InterfaceContract => InterfaceContract.Instance;
+        void IInternalEvent<DynamicInvokedEvent>.SetHolder(ICreatedEvent<DynamicInvokedEvent> created) => Holder = created;
+
+        private sealed class InterfaceContract : EventInterfaceContract<DynamicInvokedEvent>
+        {
+            public static readonly InterfaceContract Instance = new();
+
+            public override ICreatedEvent? GetLastEventCore(ref DynamicInvokedEvent @event) => @event.lastEvent;
+        }
+
+        private readonly ICreatedEvent? lastEvent;
 
         public EventName EventName { get; }
 
@@ -37,10 +52,8 @@ namespace DNEE.Internal
 
         public dynamic? Data { get; }
 
-        private readonly IDataHistoryNode? nextNode;
-        IDataHistoryNode? IDataHistoryNode.Next => nextNode;
-
-        public IEnumerable<DataWithOrigin> DataHistory { get; }
+        private DataHistoryEnumerable? lazyDataHistory;
+        public IEnumerable<DataWithOrigin> DataHistory => throw new NotImplementedException(); // TODO:
 
         public EventResult Next()
         {
@@ -48,7 +61,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
 
             DidCallNext = true;
-            return invoker.InvokeContinuation((object?)Data, DataOrigin, this).Unwrap();
+            return invoker.InvokeContinuation((object?)Data, DataOrigin, Holder).Unwrap();
         }
 
         public EventResult Next(dynamic? data)
@@ -57,7 +70,7 @@ namespace DNEE.Internal
                 throw new InvalidOperationException(SR.Handler_NextInvokedOnceOnly);
                 
             DidCallNext = true;
-            return invoker.InvokeContinuation((object?)data, invoker.Origin, this).Unwrap();
+            return invoker.InvokeContinuation((object?)data, invoker.Origin, Holder).Unwrap();
         }
 
         public EventResult GetEventResult()

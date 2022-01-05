@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DNEE.Tuning;
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 
@@ -17,18 +18,24 @@ namespace DNEE.Internal
             continuation = continueWith;
         }
 
-        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, IDataHistoryNode? lastNode)
+        public InternalEventResult InvokeWithData(dynamic? data, DataOrigin dataOrigin, ICreatedEvent? lastNode)
         {
-            var @event = new DynamicInvokedEvent(dataOrigin, handler.Event, this, (object?)data, lastNode);
-
+            DynamicInvokedEvent @event;
             ExceptionDispatchInfo? caught = null;
-            try
+
+            using (var allocated = handler.Manager.Allocator
+                .AllocateTypeless<DynamicInvokedEvent>(new(dataOrigin, handler.Event, this, (object?)data, lastNode)))
             {
-                handler.HandlerFunc.Invoke(@event, (object?)data);
-            }
-            catch (Exception e)
-            {
-                caught = ExceptionDispatchInfo.Capture(e);
+                try
+                {
+                    handler.HandlerFunc.Invoke(allocated.Object, (object?)data);
+                }
+                catch (Exception e)
+                {
+                    caught = ExceptionDispatchInfo.Capture(e);
+                }
+
+                @event = allocated.Object.Reset();
             }
 
             if (@event.AlwaysInvokeNext && !@event.DidCallNext)
@@ -41,7 +48,7 @@ namespace DNEE.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal InternalEventResult InvokeContinuation(dynamic? data, DataOrigin origin, IDataHistoryNode? lastNode)
+        internal InternalEventResult InvokeContinuation(dynamic? data, DataOrigin origin, ICreatedEvent? lastNode)
         {
             return continuation.InvokeWithData((object?)data, origin, lastNode);
         }
