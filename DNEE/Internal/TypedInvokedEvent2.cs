@@ -75,8 +75,9 @@ namespace DNEE.Internal
         // TODO: make this less messy somehow
         public DataOrigin DataOrigin { get; }
 
-        private readonly DataHistoryEnumerable<T>? lazyDataHistory;
-        public DataHistoryEnumerable<T> DataHistory => throw new NotImplementedException(); // TODO:
+        // TODO: this should probably be cleared during reset, but it won't live very long anyway, and *probably* wasn't used
+        private DataHistoryEnumerable<T>? lazyDataHistory;
+        public DataHistoryEnumerable<T> DataHistory => lazyDataHistory ??= new DataHistoryEnumerable<T>(Holder ?? throw new InvalidOperationException());
         IEnumerable<DataWithOrigin<T>> IEvent<T>.DataHistory => DataHistory;
         IEnumerable<DataWithOrigin> IEvent.DataHistory => DataHistory;
 

@@ -52,8 +52,9 @@ namespace DNEE.Internal
 
         public dynamic? Data { get; }
 
+        // TODO: this should probably be cleared during reset, but it won't live very long anyway, and *probably* wasn't used
         private DataHistoryEnumerable? lazyDataHistory;
-        public IEnumerable<DataWithOrigin> DataHistory => throw new NotImplementedException(); // TODO:
+        public IEnumerable<DataWithOrigin> DataHistory => lazyDataHistory ??= new DataHistoryEnumerable(Holder ?? throw new InvalidOperationException());
 
         public EventResult Next()
         {

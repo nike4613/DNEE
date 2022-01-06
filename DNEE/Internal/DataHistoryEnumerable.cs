@@ -1,7 +1,6 @@
-﻿using System;
+﻿using DNEE.Tuning;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace DNEE.Internal
 {
@@ -9,9 +8,9 @@ namespace DNEE.Internal
 
     internal sealed class DataHistoryEnumerable : IEnumerable<DataWithOrigin>
     {
-        private readonly IDataHistoryNode first;
+        private readonly ICreatedEvent first;
 
-        public DataHistoryEnumerable(IDataHistoryNode firstNode)
+        public DataHistoryEnumerable(ICreatedEvent firstNode)
             => first = firstNode;
 
         public IEnumerator<DataWithOrigin> GetEnumerator()
@@ -21,13 +20,20 @@ namespace DNEE.Internal
 
         public sealed class Enumerator : IEnumerator<DataWithOrigin>
         {
-            private readonly IDataHistoryNode start;
-            private IDataHistoryNode? node;
+            private readonly ICreatedEvent start;
+            private ICreatedEvent? node;
             private bool started;
             internal Enumerator(DataHistoryEnumerable enumerable)
                 => node = start = enumerable.first;
 
-            public DataWithOrigin Current => node != null ? new DataWithOrigin(node.Origin, (object?)node.Data, node.EventName) : default;
+            public DataWithOrigin Current
+            {
+                get
+                {
+                    var node = this.node?.Event();
+                    return node != null ? new DataWithOrigin(node.DataOrigin, (object?)node.Data, node.EventName) : default;
+                }
+            }
 
             object IEnumerator.Current => Current;
 
@@ -37,16 +43,16 @@ namespace DNEE.Internal
                     return started = true;
                 if (node is null) return false;
 
-                var lastData = (object?)node.Data;
-                var lastOrigin = node.Origin;
+                var lastData = (object?)node.Event().Data;
+                var lastOrigin = node.Event().DataOrigin;
                 while (node != null)
                 {
-                    node = node.Next;
+                    node = node.GetLastEvent();
                     if (node == null)
                         break;
 
-                    var data = (object?)node.Data;
-                    var origin = node.Origin;
+                    var data = (object?)node.Event().Data;
+                    var origin = node.Event().DataOrigin;
                     if (lastData != data || lastOrigin != origin)
                         break;
                 }
@@ -62,9 +68,9 @@ namespace DNEE.Internal
 
     internal sealed class DataHistoryEnumerable<T> : IEnumerable<DataWithOrigin<T>>, IEnumerable<DataWithOrigin>
     {
-        private readonly IDataHistoryNode first;
+        private readonly ICreatedEvent first;
 
-        public DataHistoryEnumerable(IDataHistoryNode firstNode)
+        public DataHistoryEnumerable(ICreatedEvent firstNode)
             => first = firstNode;
 
         public IEnumerator<DataWithOrigin<T>> GetEnumerator()
@@ -76,8 +82,8 @@ namespace DNEE.Internal
 
         public sealed class Enumerator : IEnumerator<DataWithOrigin<T>>, IEnumerator<DataWithOrigin>
         {
-            private readonly IDataHistoryNode start;
-            private IDataHistoryNode? node;
+            private readonly ICreatedEvent start;
+            private ICreatedEvent? node;
             private bool started;
             internal Enumerator(DataHistoryEnumerable<T> enumerable)
                 => node = start = enumerable.first;
@@ -87,15 +93,23 @@ namespace DNEE.Internal
                 get
                 {
                     if (node == null) return default;
-                    if (node is IDataHistoryNode<T> typed && typed.IsTyped)
-                        return new DataWithOrigin<T>(typed.Origin, typed.Data, node.EventName);
-                    return new DataWithOrigin<T>(node.Origin, (object?)node.Data, node.EventName);
+                    if (node.IsEvent<T>(out var typed) && typed.HasTypedData)
+                        return new DataWithOrigin<T>(typed.DataOrigin, typed.Data, typed.EventName);
+                    var evt = node.Event();
+                    return new DataWithOrigin<T>(evt.DataOrigin, (object?)evt.Data, evt.EventName);
                 }
             }
 
             object IEnumerator.Current => Current;
 
-            DataWithOrigin IEnumerator<DataWithOrigin>.Current => node != null ? new DataWithOrigin(node.Origin, (object?)node.Data, node.EventName) : default;
+            DataWithOrigin IEnumerator<DataWithOrigin>.Current
+            {
+                get
+                {
+                    var node = this.node?.Event();
+                    return node != null ? new DataWithOrigin(node.DataOrigin, (object?)node.Data, node.EventName) : default;
+                }
+            }
 
             public bool MoveNext()
             {
@@ -103,16 +117,16 @@ namespace DNEE.Internal
                     return started = true;
                 if (node is null) return false;
 
-                var lastData = (object?)node.Data;
-                var lastOrigin = node.Origin;
+                var lastData = (object?)node.Event().Data;
+                var lastOrigin = node.Event().DataOrigin;
                 while (node != null)
                 {
-                    node = node.Next;
+                    node = node.GetLastEvent();
                     if (node == null)
                         break;
 
-                    var data = (object?)node.Data;
-                    var origin = node.Origin;
+                    var data = (object?)node.Event().Data;
+                    var origin = node.Event().DataOrigin;
                     if (lastData != data || lastOrigin != origin)
                         break;
                 }

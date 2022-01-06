@@ -122,8 +122,6 @@ namespace DNEE.Utility
         /// <param name="value">The value to wrap.</param>
         /// <seealso cref="Maybe{T}.Maybe(T)"/>
         /// <seealso cref="Maybe.Some{T}(T)"/>
-        [SuppressMessage("Usage", "CA2225:Operator overloads have named alternates", 
-            Justification = "The named alternative is the constructor.")]
         public static explicit operator Maybe<T>(T value) => new Maybe<T>(value);
 
 
@@ -131,8 +129,6 @@ namespace DNEE.Utility
         /// Implicitly converts the result of <see cref="Maybe.None"/> into <see cref="None"/>.
         /// </summary>
         /// <param name="_"><see cref="Maybe.None"/>.</param>
-        [SuppressMessage("Usage", "CA2225:Operator overloads have named alternates", 
-            Justification = "This exists solely for type inference of the form Maybe.None.")]
         public static implicit operator Maybe<T>(Maybe _) => None;
 
         /// <summary>

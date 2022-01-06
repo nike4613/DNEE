@@ -1,7 +1,6 @@
 ﻿using DNEE.Tuning;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 namespace DNEE.Internal
 {
@@ -19,6 +18,24 @@ namespace DNEE.Internal
             @event.GetInternalEvent() = default;
             copy.Holder = null;
             return copy;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEvent Event(this ICreatedEvent @event) => (IEvent)@event;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsEvent<T>(this ICreatedEvent @event, [MaybeNullWhen(false)] out IEvent<T> result)
+        {
+            if (@event is IEvent<T> ev)
+            {
+                result = ev;
+                return true;
+            }
+            else
+            {
+                result = null;
+                return false;
+            }
         }
     }
 }
