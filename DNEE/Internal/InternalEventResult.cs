@@ -48,10 +48,8 @@ namespace DNEE.Internal
             Result = result;
         }
 
-        public static implicit operator InternalEventResult<T>(InternalEventResult r)
-            => new InternalEventResult<T>(r.Result, r.Exception);
-        public static implicit operator InternalEventResult(InternalEventResult<T> r)
-            => new InternalEventResult(r.Result, r.Exception);
+        public static implicit operator InternalEventResult<T>(InternalEventResult r) => new(r.Result, r.Exception);
+        public static implicit operator InternalEventResult(InternalEventResult<T> r) => new(r.Result, r.Exception);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)] // to try to prevent this from showing up in stack traces
         public EventResult<T> Unwrap()

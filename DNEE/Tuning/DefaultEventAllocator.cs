@@ -2,9 +2,21 @@
 
 namespace DNEE.Tuning
 {
+    /// <summary>
+    /// The default <see cref="IEventAllocator"/>.
+    /// </summary>
+    /// <remarks>
+    /// This allocator simply creates a wrapper object and returns it with no special cleanup logic.
+    /// </remarks>
     public sealed class DefaultEventAllocator : IEventAllocator
     {
-        public static readonly DefaultEventAllocator Instance = new();
+        /// <summary>
+        /// Gets the shared instance of the <see cref="DefaultEventAllocator"/>.
+        /// </summary>
+        /// <remarks>
+        /// As this type holds no state, there is no real reason not to use this anywhere this class is needed.
+        /// </remarks>
+        public static DefaultEventAllocator Instance { get; } = new();
 
         private abstract class WrapperBase<TImpl> : ICreatedEvent<TImpl>
             where TImpl : IInternalEvent<TImpl>
@@ -38,6 +50,7 @@ namespace DNEE.Tuning
             EventResult IEvent.Next(dynamic? data) => Impl.Next((object?)data);
         }
 
+        /// <inheritdoc/>
         public AllocationHandle<IAllocatedEvent<TImpl>> AllocateTypeless<TImpl>(TImpl impl) where TImpl : IEvent, IInternalEvent<TImpl>
             => new(new TypelessWrapper<TImpl>(impl), null);
 
@@ -54,6 +67,7 @@ namespace DNEE.Tuning
             EventResult IEvent<T>.Next(IUsableAs<T> data) => Impl.Next(data);
         }
 
+        /// <inheritdoc/>
         public AllocationHandle<IAllocatedEvent<TImpl, T>> AllocateInTyped<TImpl, T>(TImpl impl) where TImpl : IEvent<T>, IInternalEvent<TImpl>
             => new(new InTypedWrapper<TImpl, T>(impl), null);
 
@@ -68,6 +82,7 @@ namespace DNEE.Tuning
             EventResult<TRet> IEvent<T, TRet>.Next(IUsableAs<T> data) => Impl.Next(data);
         }
 
+        /// <inheritdoc/>
         public AllocationHandle<IAllocatedEvent<TImpl, T, TRet>> AllocateInOutTyped<TImpl, T, TRet>(TImpl impl) where TImpl : IEvent<T, TRet>, IInternalEvent<TImpl>
             => new(new InOutTypedWrapper<TImpl, T, TRet>(impl), null);
     }

@@ -83,11 +83,17 @@ namespace DNEE
         /// </remarks>
         dynamic? DynamicData { get; }
 
+        /// <summary>
+        /// Gets whether or not this event object has strongly typed data.
+        /// </summary>
         bool HasTypedData { get; }
 
         /// <summary>
         /// Gets the data passed into this handler invocation, as <typeparamref name="T"/>.
         /// </summary>
+        /// <remarks>
+        /// This is only valid when <see cref="HasTypedData"/> returns <see langword="true"/>.
+        /// </remarks>
         /// <exception cref="InvalidCastException">Thrown if the data could not be reasonably converted to <typeparamref name="T"/>.</exception>
         new T Data { get; }
 

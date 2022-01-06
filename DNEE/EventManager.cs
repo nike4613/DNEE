@@ -15,8 +15,15 @@ namespace DNEE
     {
         internal Internal.EventManager Internal { get; }
 
+        /// <summary>
+        /// Constructs a new <see cref="EventManager"/> using the default event allocator.
+        /// </summary>
         public EventManager() : this(null) { }
 
+        /// <summary>
+        /// Constructs a new <see cref="EventManager"/> using the specified event allocator.
+        /// </summary>
+        /// <param name="allocator"></param>
         public EventManager(IEventAllocator? allocator)
         {
             allocator ??= DefaultEventAllocator.Instance;

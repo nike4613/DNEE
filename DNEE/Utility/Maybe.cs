@@ -19,12 +19,12 @@ namespace DNEE.Utility
         /// <param name="value">The value to wrap.</param>
         /// <returns>A <see cref="Maybe{T}"/> wrapping <paramref name="value"/>.</returns>
         /// <seealso cref="Maybe{T}.Maybe(T)"/>
-        public static Maybe<T> Some<T>(T value) => new Maybe<T>(value);
+        public static Maybe<T> Some<T>(T value) => new(value);
         /// <summary>
         /// A value that can be implicitly converted to a <see cref="Maybe{T}"/> with no value.
         /// </summary>
         /// <seealso cref="Maybe{T}.None"/>
-        public static Maybe None { get; } = new Maybe();
+        public static Maybe None { get; } = new();
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ namespace DNEE.Utility
         /// <param name="value">The value to wrap.</param>
         /// <seealso cref="Maybe{T}.Maybe(T)"/>
         /// <seealso cref="Maybe.Some{T}(T)"/>
-        public static explicit operator Maybe<T>(T value) => new Maybe<T>(value);
+        public static explicit operator Maybe<T>(T value) => new(value);
 
 
         /// <summary>

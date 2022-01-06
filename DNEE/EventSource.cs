@@ -54,8 +54,7 @@ namespace DNEE
         /// <param name="name">The name of the event.</param>
         /// <returns>An <see cref="EventName"/> represending an event that can be subscribed to and invoked.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="name"/> is null or whitespace.</exception>
-        public EventName Event(string name)
-            => new EventName(Origin, name);
+        public EventName Event(string name) => new(Origin, name);
 
         /// <summary>
         /// Sets the base of the event identified by <paramref name="derived"/> to the event identified by <paramref name="base"/>.
