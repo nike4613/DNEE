@@ -1,5 +1,6 @@
 ﻿using DNEE.Internal;
 using DNEE.Internal.Resources;
+using DNEE.Tuning;
 using System;
 
 namespace DNEE
@@ -167,7 +168,7 @@ namespace DNEE
             }
         }
 
-        private static IDataHistoryNode? HistoryNodeForEvent(IEvent parent)
+        private static ICreatedEvent? GetCreatedEvent(IEvent parent)
         {
             IEvent? lastParent = null;
             while (parent is IEventWrapper wrapper && !ReferenceEquals(lastParent, parent))
@@ -176,7 +177,7 @@ namespace DNEE
                 parent = wrapper.BaseEvent;
             }
 
-            return parent as IDataHistoryNode;
+            return parent as ICreatedEvent;
         }
 
         /// <summary>
@@ -200,7 +201,7 @@ namespace DNEE
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var node = HistoryNodeForEvent(parent);
+            var node = GetCreatedEvent(parent);
 
             try
             {
@@ -233,7 +234,7 @@ namespace DNEE
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var node = HistoryNodeForEvent(parent);
+            var node = GetCreatedEvent(parent);
 
             try
             {
@@ -267,7 +268,7 @@ namespace DNEE
             if (parent is null)
                 throw new ArgumentNullException(nameof(parent));
 
-            var node = HistoryNodeForEvent(parent);
+            var node = GetCreatedEvent(parent);
 
             try
             {
