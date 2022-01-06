@@ -58,7 +58,7 @@ namespace _EventSystemTest
             {
                 Console.WriteLine($"(h2) {ev2} invoked with {@event} and {data}");
                 //var ret = @event.Next(data);
-                @event.NextAndTryTransform((object?)data, a => a);
+                @event.NextAndTransformResult((object?)data, a => a);
             }, (HandlerPriority)1);
 
             using var h3 = manager.SubscribeTo(origin, ev1, (@event, data) =>
@@ -86,7 +86,7 @@ namespace _EventSystemTest
                 else
                     Console.WriteLine($"(h6) Data of unknown type: {@event.DynamicData}");
 
-                @event.NextAndTryTransform(data, _ => _);
+                @event.NextAndTransformResult(data, _ => _);
 
             }, (HandlerPriority)2);
 
@@ -110,7 +110,7 @@ namespace _EventSystemTest
                 else
                     Console.WriteLine($"(h8) Data of unknown type: {@event.DynamicData}");
 
-                @event.NextAndTryTransform(data, _ => _);
+                @event.NextAndTransformResult(data, _ => _);
 
                 foreach (var (origin, ldata) in @event.DataHistory)
                 {
@@ -123,7 +123,7 @@ namespace _EventSystemTest
 
             using var h9 = manager.SubscribeTo<EventName>(origin, ev1, (@event, data) =>
             {
-                @event.NextAndTryTransform(data, _ => _);
+                @event.NextAndTransformResult(data, _ => _);
             }, (HandlerPriority)(-3));
 
             try

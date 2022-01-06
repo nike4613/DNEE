@@ -20,7 +20,7 @@ namespace DNEE
         /// <returns><see langword="true"/> if a value was gotten and the transformer was run, <see langword="false"/> otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="event"/> is <see langword="null"/>
         /// -OR- if <paramref name="transformer"/> is <see langword="null"/>.</exception>
-        public static bool NextAndTryTransform(this IEvent @event, dynamic? data, Func<dynamic?, dynamic?> transformer)
+        public static bool NextAndTransformResult(this IEvent @event, dynamic? data, Func<dynamic?, dynamic?> transformer)
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
@@ -49,7 +49,7 @@ namespace DNEE
         /// <returns><see langword="true"/> if a value was gotten and the transformer was run, <see langword="false"/> otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="event"/> is <see langword="null"/>
         /// -OR- if <paramref name="transformer"/> is <see langword="null"/>.</exception>
-        public static bool NextAndTryTransform<T>(this IEvent<T> @event, Maybe<T> data, Func<dynamic?, dynamic?> transformer)
+        public static bool NextAndTransformResult<T>(this IEvent<T> @event, Maybe<T> data, Func<dynamic?, dynamic?> transformer)
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
@@ -58,7 +58,7 @@ namespace DNEE
 
             var result = data.HasValue
                 ? @event.Next(data.Value)
-                : @event.Next((object?)@event.DynamicData);
+                : @event.Next();
 
             if (result.HasValue)
             {
@@ -88,7 +88,7 @@ namespace DNEE
         /// <returns><see langword="true"/> if a value was gotten and the transformer was run, <see langword="false"/> otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="event"/> is <see langword="null"/>
         /// -OR- if <paramref name="transformer"/> is <see langword="null"/>.</exception>
-        public static bool NextAndTryTransform<T, TRet>(this IEvent<T, TRet> @event, in T data, Func<TRet, TRet> transformer, Func<dynamic?, dynamic?>? dynTransformer = null)
+        public static bool NextAndTransformResult<T, TRet>(this IEvent<T, TRet> @event, in T data, Func<TRet, TRet> transformer, Func<dynamic?, dynamic?>? dynTransformer = null)
         {
             if (@event is null)
                 throw new ArgumentNullException(nameof(@event));
